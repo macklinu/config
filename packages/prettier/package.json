@@ -1,0 +1,21 @@
+{
+  "name": "@macklinu/prettier-config",
+  "version": "0.0.0",
+  "description": "My personal Prettier configuration",
+  "type": "module",
+  "main": "prettier.config.js",
+  "files": [
+    "prettier.config.js"
+  ],
+  "scripts": {
+    "test": "vitest"
+  },
+  "keywords": [
+    "prettier"
+  ],
+  "author": "Mackie Underdown <macklinu@users.noreply.github.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "vitest": "^2.0.4"
+  }
+}

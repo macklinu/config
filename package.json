@@ -5,13 +5,14 @@
   "type": "module",
   "packageManager": "pnpm@9.6.0",
   "scripts": {
-    "test": "pnpm --recursive test"
+    "test": "vitest",
+    "lint": "eslint ."
   },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
   "devDependencies": {
+    "@macklinu/eslint-config": "workspace:*",
     "@macklinu/prettier-config": "workspace:*",
-    "prettier": "^3.3.3"
+    "eslint": "^9.7.0",
+    "prettier": "^3.3.3",
+    "vitest": "^2.0.4"
   }
 }

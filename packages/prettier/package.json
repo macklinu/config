@@ -7,15 +7,9 @@
   "files": [
     "prettier.config.js"
   ],
-  "scripts": {
-    "test": "vitest"
-  },
   "keywords": [
     "prettier"
   ],
   "author": "Mackie Underdown <macklinu@users.noreply.github.com>",
-  "license": "MIT",
-  "devDependencies": {
-    "vitest": "^2.0.4"
-  }
+  "license": "MIT"
 }

@@ -1,4 +1,5 @@
-import { test, expect } from 'vitest'
+import { expect, test } from 'vitest'
+
 import config from './prettier.config'
 
 test('default export is a prettier config', () => {

@@ -1,5 +1,11 @@
 # @macklinu/eslint-config
 
+## 0.2.0
+
+### Minor Changes
+
+- e63294e: Upgrade TypeScript, Vitest, and React Hooks packages
+
 ## 0.1.0
 
 ### Minor Changes

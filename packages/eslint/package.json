@@ -4,16 +4,10 @@
   "description": "My personal ESLint configuration",
   "type": "module",
   "main": "index.js",
-  "files": [
-    "index.js",
-    "import.js",
-    "react.js",
-    "vitest.js"
-  ],
   "exports": {
     ".": "./index.js",
-    "./react.js": "./react.js",
-    "./vitest.js": "./vitest.js"
+    "./react": "./react.js",
+    "./vitest": "./vitest.js"
   },
   "keywords": [
     "eslint"

@@ -1,3 +1,4 @@
+#!/usr/bin/env bun
 import { detectPackageManager, installPackage } from '@antfu/install-pkg'
 import { program } from 'commander'
 import { consola } from 'consola'

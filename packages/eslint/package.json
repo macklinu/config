@@ -9,7 +9,9 @@
     "./react": "./react.js",
     "./vitest": "./vitest.js"
   },
-  "bin": "./src/cli.ts",
+  "bin": {
+    "@macklinu/eslint-config": "./src/cli.ts"
+  },
   "keywords": [
     "eslint"
   ],

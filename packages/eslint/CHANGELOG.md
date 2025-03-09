@@ -1,5 +1,11 @@
 # @macklinu/eslint-config
 
+## 0.4.0
+
+### Minor Changes
+
+- 548d1b6: Add CLI to initialize ESLint config
+
 ## 0.3.0
 
 ### Minor Changes

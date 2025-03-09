@@ -1,5 +1,11 @@
 # @macklinu/eslint-config
 
+## 0.4.2
+
+### Patch Changes
+
+- f87b66a: Add shebang to ESLint config CLI
+
 ## 0.4.1
 
 ### Patch Changes

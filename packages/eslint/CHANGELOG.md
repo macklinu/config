@@ -1,5 +1,11 @@
 # @macklinu/eslint-config
 
+## 0.4.1
+
+### Patch Changes
+
+- 43eaee6: Provide explicit scoped package bin name
+
 ## 0.4.0
 
 ### Minor Changes

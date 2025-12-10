@@ -47,9 +47,7 @@ test('throws if package manager cannot be determined', async () => {
     cwd
   )
 
-  await expect(init({ cwd })).rejects.toThrowError(
-    /could not determine package manager to use/i
-  )
+  await expect(init({ cwd })).rejects.toThrowError(/could not determine package manager to use/i)
 })
 
 test('is able to install with package manager', async () => {
@@ -76,13 +74,10 @@ test('is able to install with package manager', async () => {
   await init({ cwd })
 
   expect(consola.info).toHaveBeenCalled()
-  expect(installPackage).toHaveBeenCalledWith(
-    ['eslint', '@macklinu/eslint-config'],
-    {
-      cwd,
-      dev: true,
-      silent: true,
-      packageManager: 'pnpm',
-    }
-  )
+  expect(installPackage).toHaveBeenCalledWith(['eslint', '@macklinu/eslint-config'], {
+    cwd,
+    dev: true,
+    silent: true,
+    packageManager: 'pnpm',
+  })
 })

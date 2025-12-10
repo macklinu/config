@@ -15,9 +15,7 @@ export const init = async ({ cwd = process.cwd() }: { cwd?: string } = {}) => {
   const packageManager = await detectPackageManager(cwd)
 
   if (!packageManager) {
-    throw new Error(
-      'Could not determine package manager to use to installation'
-    )
+    throw new Error('Could not determine package manager to use to installation')
   }
 
   const devDependencies = ['eslint', '@macklinu/eslint-config']
@@ -39,20 +37,14 @@ export const init = async ({ cwd = process.cwd() }: { cwd?: string } = {}) => {
     consola.info('Creating %s', styleText('bold', 'eslint.config.js'))
     await fs.promises.writeFile(
       resolvePath('eslint.config.js'),
-      [
-        "import config from '@macklinu/eslint-config'",
-        '',
-        'export default [...config]',
-      ].join('\n')
+      ["import config from '@macklinu/eslint-config'", '', 'export default [...config]'].join('\n')
     )
   }
 
   if (fs.existsSync(resolvePath('.vscode/settings.json'))) {
     consola.warn('.vscode/settings.json already exists - skipping')
   } else {
-    consola.info(
-      'Writing preferred ESLint VSCode config to .vscode/settings.json'
-    )
+    consola.info('Writing preferred ESLint VSCode config to .vscode/settings.json')
 
     await fs.promises.mkdir(resolvePath('.vscode'))
     await fs.promises.writeFile(

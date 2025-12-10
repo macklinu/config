@@ -1,11 +1,10 @@
 /**
  * @type {import("prettier").Config}
  */
-const config = {
+export default {
   jsxSingleQuote: true,
   semi: false,
   singleQuote: true,
   trailingComma: 'es5',
+  printWidth: 100,
 }
-
-export default config

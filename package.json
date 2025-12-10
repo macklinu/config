@@ -6,14 +6,18 @@
   "packageManager": "pnpm@10.25.0",
   "scripts": {
     "test": "vitest",
-    "lint": "eslint .",
-    "release": "changeset publish"
+    "lint": "oxlint",
+    "release": "changeset publish",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.8",
     "@macklinu/eslint-config": "workspace:*",
     "@macklinu/prettier-config": "workspace:*",
     "eslint": "^9.39.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "oxlint": "^1.32.0",
     "prettier": "^3.7.4",
     "vitest": "^4.0.15"
   }

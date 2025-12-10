@@ -66,14 +66,8 @@ const config = [
 
       // Taken from @remix-run/eslint-config
       'jsx-a11y/alt-text': 'warn',
-      'jsx-a11y/anchor-has-content': [
-        'warn',
-        { components: ['Link', 'NavLink'] },
-      ],
-      'jsx-a11y/anchor-is-valid': [
-        'warn',
-        { aspects: ['noHref', 'invalidHref'] },
-      ],
+      'jsx-a11y/anchor-has-content': ['warn', { components: ['Link', 'NavLink'] }],
+      'jsx-a11y/anchor-is-valid': ['warn', { aspects: ['noHref', 'invalidHref'] }],
       'jsx-a11y/aria-activedescendant-has-tabindex': 'warn',
       'jsx-a11y/aria-props': 'warn',
       'jsx-a11y/aria-proptypes': 'warn',

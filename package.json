@@ -3,18 +3,18 @@
   "private": true,
   "version": "0.0.0-not-published",
   "type": "module",
-  "packageManager": "pnpm@10.6.1",
+  "packageManager": "pnpm@10.25.0",
   "scripts": {
     "test": "vitest",
     "lint": "eslint .",
     "release": "changeset publish"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.11",
+    "@changesets/cli": "^2.29.8",
     "@macklinu/eslint-config": "workspace:*",
     "@macklinu/prettier-config": "workspace:*",
-    "eslint": "^9.17.0",
-    "prettier": "^3.4.2",
-    "vitest": "^2.1.8"
+    "eslint": "^9.39.1",
+    "prettier": "^3.7.4",
+    "vitest": "^4.0.15"
   }
 }

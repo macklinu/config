@@ -77,9 +77,6 @@ importers:
       '@total-typescript/tsconfig':
         specifier: ^1.0.4
         version: 1.0.4
-      '@types/eslint__js':
-        specifier: ^9.14.0
-        version: 9.14.0
       '@types/node':
         specifier: ^24.10.2
         version: 24.10.2
@@ -925,13 +922,6 @@ packages:
       {
         integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==,
       }
-
-  '@types/eslint__js@9.14.0':
-    resolution:
-      {
-        integrity: sha512-s0jepCjOJWB/GKcuba4jISaVpBudw3ClXJ3fUK4tugChUMQsp6kSwuA8Dcx6wFd/JsJqcY8n4rEpa5RTHs5ypA==,
-      }
-    deprecated: This is a stub types definition. @eslint/js provides its own type definitions, so you do not need this installed.
 
   '@types/estree@1.0.8':
     resolution:
@@ -4193,10 +4183,6 @@ snapshots:
       assertion-error: 2.0.1
 
   '@types/deep-eql@4.0.2': {}
-
-  '@types/eslint__js@9.14.0':
-    dependencies:
-      '@eslint/js': 9.39.1
 
   '@types/estree@1.0.8': {}
 

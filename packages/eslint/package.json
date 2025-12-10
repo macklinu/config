@@ -40,7 +40,6 @@
   },
   "devDependencies": {
     "@total-typescript/tsconfig": "^1.0.4",
-    "@types/eslint__js": "^9.14.0",
     "@types/node": "^24.10.2",
     "eslint": "^9.39.1",
     "memfs": "^4.51.1",

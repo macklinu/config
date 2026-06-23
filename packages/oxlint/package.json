@@ -1,0 +1,46 @@
+{
+  "name": "@macklinu/oxlint-config",
+  "version": "0.0.0",
+  "description": "My personal Oxlint configuration",
+  "type": "module",
+  "main": "index.ts",
+  "types": "index.ts",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/macklinu/config.git",
+    "directory": "packages/oxlint"
+  },
+  "exports": {
+    ".": "./index.ts",
+    "./base": "./base.ts",
+    "./react": "./react.ts",
+    "./vitest": "./vitest.ts",
+    "./node": "./node.ts",
+    "./type-aware": "./type-aware.ts"
+  },
+  "files": [
+    "*.ts",
+    "README.md"
+  ],
+  "keywords": [
+    "oxlint"
+  ],
+  "author": "Mackie Underdown <macklinu@users.noreply.github.com>",
+  "license": "MIT",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "oxlint": ">=1.70.0",
+    "oxlint-tsgolint": ">=0.22.1"
+  },
+  "peerDependenciesMeta": {
+    "oxlint-tsgolint": {
+      "optional": true
+    }
+  }
+}

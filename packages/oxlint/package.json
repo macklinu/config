@@ -9,6 +9,11 @@
     "access": "public",
     "provenance": true
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/macklinu/config.git",
+    "directory": "packages/oxlint"
+  },
   "exports": {
     ".": "./index.ts",
     "./base": "./base.ts",

@@ -1,0 +1,47 @@
+{
+  "name": "@macklinu/config",
+  "version": "0.1.0",
+  "description": "Set up Macklinu project configuration",
+  "type": "module",
+  "bin": {
+    "config": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit",
+    "prepack": "pnpm build"
+  },
+  "dependencies": {
+    "@effect/platform-node": "4.0.0-rc.112",
+    "effect": "4.0.0-rc.112"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.0",
+    "typescript": "^7.0.2",
+    "vitest": "^4.0.15"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/macklinu/config.git",
+    "directory": "apps/cli"
+  },
+  "keywords": [
+    "config",
+    "oxlint",
+    "oxfmt",
+    "lefthook"
+  ],
+  "author": "Mackie Underdown <macklinu@users.noreply.github.com>",
+  "license": "MIT"
+}

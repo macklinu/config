@@ -1,20 +1,17 @@
 {
   "name": "@macklinu/config",
+  "private": true,
   "version": "0.0.0",
   "description": "Set up my project configurations",
   "type": "module",
   "bin": {
     "config": "./dist/index.js"
   },
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "build": "pnpm clean && tsc -p tsconfig.build.json",
     "clean": "node --eval \"import { rmSync } from 'node:fs'; rmSync('dist', { force: true, recursive: true })\"",
     "test": "vitest run",
-    "typecheck": "tsc -p tsconfig.build.json --noEmit",
-    "prepack": "pnpm build"
+    "typecheck": "tsc -p tsconfig.build.json --noEmit"
   },
   "dependencies": {
     "@effect/platform-node": "4.0.0-rc.112",
@@ -27,22 +24,5 @@
   },
   "engines": {
     "node": ">=22.18.0"
-  },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/macklinu/config.git",
-    "directory": "apps/cli"
-  },
-  "keywords": [
-    "config",
-    "oxlint",
-    "oxfmt",
-    "lefthook"
-  ],
-  "author": "Mackie Underdown <macklinu@users.noreply.github.com>",
-  "license": "MIT"
+  }
 }

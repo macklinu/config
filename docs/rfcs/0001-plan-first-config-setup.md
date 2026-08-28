@@ -6,9 +6,9 @@
 
 ## Context
 
-The existing ESLint initializer installs packages and writes files in one execution path. It cannot show all intended changes before mutation, reject stale state, or model ambiguous configuration as a conflict. See [`packages/eslint/src/init.ts`](../../packages/eslint/src/init.ts).
+The existing ESLint initializer changes packages and files in one path. It cannot show every change before it writes, reject stale state, or represent an unclear configuration as a conflict. See [`packages/eslint/src/init.ts`](../../packages/eslint/src/init.ts).
 
-The replacement must configure a repository safely. The first integration initializes Oxlint and Oxfmt: it installs the required packages, creates baseline configs when absent, and adds both commands to an existing Lefthook `pre-commit` hook or creates its YAML config when none exists.
+The replacement must set up a repository safely. The first integration sets up Oxlint and Oxfmt: it installs the required packages, creates missing baseline configs, and adds both commands to Lefthook. It updates an existing Lefthook `pre-commit` hook or creates a YAML config when none exists.
 
 ## Decision
 
@@ -18,28 +18,31 @@ The replacement must configure a repository safely. The first integration initia
 config setup [integration] [--cwd <directory>] [--review] [--yes]
 ```
 
-- `config setup` is interactive. It selects an integration, then scans, reviews, and asks for approval.
-- `config setup oxlint` selects Oxlint without the selection prompt. It still reviews and asks for approval.
-- `--cwd` resolves a Git repository root. The first release requires its root `package.json`; it does not target a workspace leaf.
-- The default review is a portable unified diff. It uses color when the output supports it.
-- `--review` uses an OpenTUI multi-file diff. It requires a TTY and includes the approval control.
-- `--yes` is the only non-interactive approval. It requires an explicit integration and is incompatible with `--review`.
-- No `--force`, compatibility `init` command, or implicit apply mode.
+- `config setup` prompts for an integration, then scans, reviews, and asks for approval.
+- `config setup oxlint` skips the integration prompt. It still reviews and asks for approval.
+- `--cwd` finds the Git repository root. The first release needs its root `package.json`; it cannot target a workspace leaf.
+- The default review is a portable unified diff. It uses color when supported.
+- `--review` shows an OpenTUI multi-file diff. It needs a TTY and includes approval.
+- `--yes` is the only non-interactive approval. It needs an explicit integration and cannot be combined with `--review`.
+- There is no `--force`, compatibility `init` command, or implicit apply mode.
 
-A plan with a conflict cannot be applied. A declined plan makes no changes.
+A conflicted plan cannot apply. A declined plan writes nothing.
 
 ### Architecture
 
-Repository I/O and process execution are Effect services. Detection and planning are pure functions over an immutable repository snapshot.
+Repository I/O and process commands are Effect services. Planning is pure and uses one immutable repository snapshot.
 
-```text
-CLI / prompts
-  → repository scan
-  → integration detection
-  → pure change plan
-  → diff or TUI review
-  → approval
-  → revalidation and apply
+```mermaid
+flowchart TD
+  CLI["CLI / prompts"] --> Scan["Scan repository"]
+  Scan --> Detect["Detect integration"]
+  Detect --> Plan["Build change plan"]
+  Plan --> Conflict{"Has conflicts?"}
+  Conflict -->|Yes| Stop["Stop without changes"]
+  Conflict -->|No| Review["Show diff or TUI review"]
+  Review --> Approve{"Approved?"}
+  Approve -->|No| Stop
+  Approve -->|Yes| Apply["Revalidate and apply"]
 ```
 
 ```ts
@@ -50,7 +53,7 @@ interface Integration<State> {
 }
 ```
 
-`RepositorySnapshot` contains raw source bytes, file fingerprints, candidate config paths, package-manager facts, and Git-hook facts. It has no writable filesystem or process capability.
+`RepositorySnapshot` records raw source bytes, file fingerprints, candidate config paths, package-manager facts, and Git-hook facts. It cannot write to the filesystem or run a process.
 
 Modules:
 
@@ -66,7 +69,7 @@ Modules:
 
 ### Plan actions
 
-Use `Data.TaggedEnum` for the internal action model. The plan is an in-memory domain object, not a CLI wire format.
+`Action` is an internal `Data.TaggedEnum` value. It is not a CLI wire format.
 
 ```ts
 type Action = Data.TaggedEnum<{
@@ -80,9 +83,9 @@ type Action = Data.TaggedEnum<{
 const Action = Data.taggedEnum<Action>()
 ```
 
-All paths are normalized and repository-relative. `Create` and `Update` own exact UTF-8 source. `Update` includes the full before and after content; review renders only changed hunks. `Command` uses an executable and argument vector. It never uses a shell.
+All paths are normalized and repository-relative. `Create` and `Update` own exact UTF-8 source. An `Update` has the full before and after content; review shows only changed hunks. A `Command` has an executable and argument vector, never a shell string.
 
-A plan includes every input that affected detection, an action order, a stable digest, and action dependencies. The planner rejects path escape, duplicate writers, invalid update fingerprints, and plans that contain conflicts.
+A plan records its detection inputs, ordered actions, stable digest, and action dependencies. The planner rejects path escape, duplicate writers, invalid update fingerprints, and plans with conflicts.
 
 ### Oxlint and Oxfmt integration
 
@@ -105,7 +108,7 @@ Initial state handling:
 - Existing config that already extends the required `base` config → `NoChange`.
 - Any other existing Oxlint config → `Conflict`.
 
-Do not reprint an existing TypeScript config. Later support may use the TypeScript parser plus span-based edits, and only for a canonical static `export default defineConfig({ extends: [...] })` form. Dynamic exports, spreads, aliases with unclear meaning, and multiple default exports remain conflicts.
+Do not reprint an existing TypeScript config. Later support may use the TypeScript parser and span-based edits for a canonical static `export default defineConfig({ extends: [...] })` form only. Dynamic exports, spreads, unclear aliases, and multiple default exports remain conflicts.
 
 Oxfmt uses a baseline `.oxfmtrc.json`:
 
@@ -122,11 +125,11 @@ Initial state handling:
 
 ### Lefthook integration and installation
 
-Lefthook supports YAML, TOML, JSON, and JSONC main config files in several documented locations. The scanner must find all documented main config names and `lefthook-local` overlays. It must not guess which of several main configs Lefthook will use.
+Lefthook supports YAML, TOML, JSON, and JSONC main configs in several documented locations. The scanner finds every documented main config and `lefthook-local` overlay. It does not guess which of several main configs Lefthook will use.
 
-The planner operates on semantic targets: `pre-commit.commands.oxlint` and `pre-commit.commands.oxfmt`. Each supported format needs its own preserving editor. A YAML parser is not a generic Lefthook editor.
+The planner targets `pre-commit.commands.oxlint` and `pre-commit.commands.oxfmt`. Each format needs its own source-preserving editor; a YAML parser is not a generic Lefthook editor.
 
-The first write adapter supports no more than one main YAML config. An existing config must have a mapping-shaped `pre-commit.commands`; when none exists, the adapter creates `lefthook.yml` with that shape. It inserts each command only when its identifier is absent:
+The first write adapter accepts zero or one main YAML config. An existing config must have a mapping-shaped `pre-commit.commands`; when none exists, the adapter creates `lefthook.yml` with that shape. It inserts a command only when its identifier is absent:
 
 ```yaml
 pre-commit:
@@ -139,22 +142,30 @@ pre-commit:
       run: pnpm exec oxfmt "{staged_files}"
 ```
 
-The command renderer uses `pnpm exec` in a pnpm repository and `nubx` in a Nub repository. Use a YAML CST parser for validation, then make a token-span insertion. Do not parse and stringify the document. Preserve all bytes outside the inserted node. A non-YAML config, more than one main config, `jobs`, malformed YAML, duplicate keys, or an existing different `oxlint` or `oxfmt` command is a conflict in the first slice. Future TOML, JSON, and JSONC adapters must meet the same source-preservation rule.
+The command renderer uses `pnpm exec` in a pnpm repository and `nubx` in a Nub repository. It validates with a YAML CST parser, then inserts a token span. It never parses and stringifies the whole document, and it preserves every byte outside the inserted node.
 
-`lefthook install` is related but separate. A config update does not require reinstall: Lefthook reads its config whenever the installed hook runs. The Lefthook npm package also installs hooks from its postinstall script. See [Lefthook install](https://lefthook.dev/usage/commands/install/).
+The first slice reports a conflict for:
 
-Do not run `lefthook install` automatically in the first slice. It mutates Git hooks, and the scanner cannot safely overwrite a custom hook. A later explicit `--install-hook` mode may add `Command { executable: "lefthook", args: ["install", "pre-commit"] }` only when the main config is present and the target hook is absent or conclusively Lefthook-managed. Any custom or unknown hook is a conflict.
+- a non-YAML config or more than one main config;
+- `jobs`, malformed YAML, or duplicate keys; or
+- an existing different `oxlint` or `oxfmt` command.
+
+Future TOML, JSON, and JSONC adapters must preserve source bytes in the same way.
+
+`lefthook install` is separate. Lefthook reads its config whenever its installed hook runs. The Lefthook npm package also installs hooks from its postinstall script. See [Lefthook install](https://lefthook.dev/usage/commands/install/).
+
+The first slice never runs `lefthook install`. It changes Git hooks, and the scanner cannot safely overwrite a custom hook. A later `--install-hook` mode may add `Command { executable: "lefthook", args: ["install", "pre-commit"] }` only when the main config exists and the target hook is absent or conclusively Lefthook-managed. Any custom or unknown hook is a conflict.
 
 ### Package-manager commands
 
-Package-manager detection is pure and ordered:
+Package-manager detection is pure:
 
-1. Parse `package.json#packageManager`.
-2. Compare the result with recognized lockfiles.
+1. Read `package.json#packageManager`.
+2. Compare it with recognized lockfiles.
 3. Require agreement and a known executable.
-4. Otherwise produce a conflict.
+4. Otherwise report a conflict.
 
-Never guess npm, invoke Corepack, or install a package manager. An adapter renders the command. The first slice supports pnpm and Nub:
+Never guess npm, invoke Corepack, or install a package manager. An adapter renders the command. The first slice supports only pnpm and Nub:
 
 ```text
 pnpm add --save-dev --ignore-scripts \
@@ -168,22 +179,24 @@ nub add --save-dev --ignore-scripts \
   oxfmt@<compatibility-version>
 ```
 
-Add `--workspace-root` only for a pnpm or Nub workspace root. The CLI ships an exact compatibility matrix; it does not use `latest` or mutable ranges. Existing compatible packages are `NoChange`. An incompatible version or unclear dependency location is a conflict.
+Use `--workspace-root` only for a pnpm or Nub workspace root. The CLI ships an exact compatibility matrix; it never uses `latest` or mutable ranges. Compatible packages are `NoChange`. An incompatible version or unclear dependency location is a conflict.
 
-`--ignore-scripts` prevents an unreviewed dependency lifecycle script from running. The review must state that this command will change `package.json` and the lockfile. Those package-manager-generated bytes cannot be presented as a truthful static diff before command execution.
+`--ignore-scripts` blocks unreviewed dependency lifecycle scripts. The review must say that the command changes `package.json` and the lockfile. Package-manager output cannot have a truthful static diff before the command runs.
 
 ### Revalidation and apply
 
-1. Scan and create the plan.
-2. Render the plan and obtain approval.
-3. Acquire an exclusive lock in the resolved Git directory.
-4. Re-scan and re-plan.
-5. Apply only if the fresh plan is semantically identical and every planned fingerprint still matches.
-6. Run package-manager commands first and verify their postconditions.
-7. Revalidate text-file targets.
-8. Write text outputs to same-directory temporary files, `fsync`, preserve update modes, and atomically rename each file.
+```mermaid
+flowchart LR
+  Approved["Approved plan"] --> Lock["Acquire Git-directory lock"]
+  Lock --> Scan["Re-scan and re-plan"]
+  Scan --> Match{"Same plan and fingerprints?"}
+  Match -->|No| Stale["Reject stale plan"]
+  Match -->|Yes| Commands["Run package-manager commands and verify postconditions"]
+  Commands --> Targets["Revalidate text-file targets"]
+  Targets --> Write["fsync temporary files, preserve modes, and atomically rename"]
+```
 
-This gives atomic replacement per file and stale-plan rejection. It does not give an atomic transaction across package-manager commands and multiple files. On failure, report completed actions. Do not auto-rollback: rollback can overwrite concurrent user changes and cannot safely undo package-manager side effects.
+Each file replacement is atomic. The full operation is not atomic across package-manager commands and multiple files. On failure, report completed actions. Do not auto-rollback: it can overwrite concurrent user changes and cannot safely undo package-manager side effects.
 
 ## Delivery order
 
@@ -205,4 +218,4 @@ This gives atomic replacement per file and stale-plan rejection. It does not giv
 
 ## Consequences
 
-Setup stops rather than guessing. The first release handles fewer repository shapes, but each accepted shape has a reviewable plan, a stale-state guard, and a small source-preserving change. New shapes are added as explicit adapters instead of broadening one unsafe editor.
+Setup stops when a safe configuration needs a guess. The first release supports fewer repository shapes, but every supported shape has a reviewable plan, stale-state protection, and a small source-preserving change. New shapes need explicit adapters.

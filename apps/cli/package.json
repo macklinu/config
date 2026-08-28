@@ -1,7 +1,7 @@
 {
   "name": "@macklinu/config",
-  "version": "0.1.0",
-  "description": "Set up Macklinu project configuration",
+  "version": "0.0.0",
+  "description": "Set up my project configurations",
   "type": "module",
   "bin": {
     "config": "./dist/index.js"
@@ -10,7 +10,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "pnpm clean && tsc -p tsconfig.build.json",
+    "clean": "node --eval \"import { rmSync } from 'node:fs'; rmSync('dist', { force: true, recursive: true })\"",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.build.json --noEmit",
     "prepack": "pnpm build"

@@ -1,0 +1,26 @@
+{
+  "name": "@macklinu/config",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Set up my project configurations",
+  "type": "module",
+  "bin": {
+    "config": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "@effect/platform-node": "4.0.0-rc.112",
+    "effect": "4.0.0-rc.112"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.0",
+    "tsdown": "0.22.14",
+    "typescript": "^7.0.2"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  }
+}

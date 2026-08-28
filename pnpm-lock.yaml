@@ -59,9 +59,6 @@ importers:
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
-      vitest:
-        specifier: ^4.0.15
-        version: 4.0.15(@types/node@26.4.0)(yaml@2.8.2)
 
   packages/eslint:
     dependencies:
@@ -5690,15 +5687,6 @@ snapshots:
       chai: 6.2.1
       tinyrainbow: 3.0.3
 
-  '@vitest/mocker@4.0.15(vite@7.2.7(@types/node@24.10.2)(yaml@2.8.2))':
-    dependencies:
-      '@vitest/spy': 4.0.15
-      estree-walker: 3.0.3
-      magic-string: 0.30.21
-    optionalDependencies:
-      vite: 7.2.7(@types/node@24.10.2)(yaml@2.8.2)
-    optional: true
-
   '@vitest/mocker@4.0.15(vite@7.2.7(@types/node@26.4.0)(yaml@2.8.2))':
     dependencies:
       '@vitest/spy': 4.0.15
@@ -7739,7 +7727,7 @@ snapshots:
   vitest@4.0.15(@types/node@24.10.2)(yaml@2.8.2):
     dependencies:
       '@vitest/expect': 4.0.15
-      '@vitest/mocker': 4.0.15(vite@7.2.7(@types/node@24.10.2)(yaml@2.8.2))
+      '@vitest/mocker': 4.0.15(vite@7.2.7(@types/node@26.4.0)(yaml@2.8.2))
       '@vitest/pretty-format': 4.0.15
       '@vitest/runner': 4.0.15
       '@vitest/snapshot': 4.0.15

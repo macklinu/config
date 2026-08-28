@@ -8,8 +8,7 @@
     "config": "./dist/index.js"
   },
   "scripts": {
-    "build": "tsdown src/index.ts --clean --target node22 --no-fixed-extension --tsconfig tsconfig.build.json",
-    "test": "vitest run",
+    "build": "tsdown",
     "typecheck": "tsc -p tsconfig.build.json"
   },
   "dependencies": {
@@ -19,8 +18,7 @@
   "devDependencies": {
     "@types/node": "^26.4.0",
     "tsdown": "0.22.14",
-    "typescript": "^7.0.2",
-    "vitest": "^4.0.15"
+    "typescript": "^7.0.2"
   },
   "engines": {
     "node": ">=22.18.0"

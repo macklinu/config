@@ -17,10 +17,11 @@
   "exports": {
     ".": "./index.ts",
     "./base": "./base.ts",
-    "./react": "./react.ts",
-    "./vitest": "./vitest.ts",
+    "./effect": "./effect.ts",
     "./node": "./node.ts",
-    "./type-aware": "./type-aware.ts"
+    "./react": "./react.ts",
+    "./type-aware": "./type-aware.ts",
+    "./vitest": "./vitest.ts"
   },
   "files": [
     "*.ts",
@@ -35,12 +36,31 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "oxlint": ">=1.70.0",
-    "oxlint-tsgolint": ">=0.22.1"
+    "@effect/tsgo": ">=0.38.0",
+    "effect": ">=4.0.0-0 <5.0.0",
+    "oxlint": ">=1.79.0",
+    "oxlint-tsgolint": ">=7.0.2001",
+    "typescript": ">=7.0.2"
   },
   "peerDependenciesMeta": {
+    "@effect/tsgo": {
+      "optional": true
+    },
+    "effect": {
+      "optional": true
+    },
     "oxlint-tsgolint": {
       "optional": true
+    },
+    "typescript": {
+      "optional": true
     }
+  },
+  "devDependencies": {
+    "@effect/tsgo": "0.38.0",
+    "effect": "4.0.0-rc.112",
+    "oxlint": "1.80.0",
+    "oxlint-tsgolint": "7.0.2001",
+    "typescript": "7.0.2"
   }
 }

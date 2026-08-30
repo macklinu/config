@@ -1,13 +1,13 @@
-import { defineConfig } from 'oxlint'
+import { defineConfig, type OxlintConfig } from 'oxlint'
 
 export const base = defineConfig({
   plugins: ['eslint', 'typescript', 'unicorn', 'oxc', 'import', 'promise'],
   categories: {
-    // Start from Oxlint's high-signal defaults, then cherry-pick style rules below.
-    // Broad style/pedantic/restriction categories get noisy fast and often overlap with Oxfmt.
+    // Guardrails cover code that is wrong or likely wrong.
+    // Perf is optimization; pedantic/style are style; restriction is project policy; nursery is unstable.
     correctness: 'error',
-    suspicious: 'warn',
-    perf: 'warn',
+    suspicious: 'error',
+    perf: 'off',
     pedantic: 'off',
     restriction: 'off',
     style: 'off',
@@ -31,18 +31,31 @@ export const base = defineConfig({
     'import/no-anonymous-default-export': 'error',
     'import/no-commonjs': 'error',
     // Import cycles are worth surfacing, but not worth blocking every refactor in existing code.
-    'import/no-cycle': ['warn', { ignoreTypes: true }],
+    'import/no-cycle': ['error', { ignoreTypes: true }],
     'import/no-default-export': 'off',
     // Separate `import type` statements are preferred for readability and runtime/type clarity.
     'import/no-duplicates': ['error', { preferInline: false }],
+    // Namespace imports are valid for module-shaped APIs; do not ban a sound import form.
+    'import/no-namespace': 'off',
+    'oxc/no-accumulating-spread': 'error',
+    'oxc/no-map-spread': 'error',
+    'promise/catch-or-return': 'error',
+    'promise/no-nesting': 'error',
+    'promise/no-return-in-finally': 'error',
+    'promise/no-return-wrap': 'error',
+    'promise/param-names': 'error',
+    'promise/prefer-await-to-callbacks': 'error',
     // Path aliases and package boundaries vary too much by project.
     'import/no-relative-parent-imports': 'off',
     'no-alert': 'error',
     'no-array-constructor': 'error',
-    'no-async-promise-executor': 'error',
     'no-await-in-loop': 'off',
+    // Agent output must use an injected logger or an explicit application boundary.
     'no-console': 'error',
-    'no-debugger': 'error',
+    'no-new-func': 'error',
+    'no-script-url': 'error',
+    'no-self-compare': 'error',
+    'no-template-curly-in-string': 'error',
     'no-duplicate-imports': ['error', { allowSeparateTypeImports: true }],
     'no-else-return': 'error',
     'no-empty': 'error',
@@ -54,16 +67,12 @@ export const base = defineConfig({
     'no-lone-blocks': 'error',
     'no-magic-numbers': 'off',
     'no-nested-ternary': 'error',
-    'no-new-object': 'error',
     'no-new-wrappers': 'error',
     'no-param-reassign': 'off',
     'no-plusplus': 'off',
     'no-promise-executor-return': 'error',
-    // Modern engines removed the old performance reason to ban `return await`, and it helps try/catch.
-    'no-return-await': 'off',
     'no-sequences': 'error',
     'no-throw-literal': 'error',
-    'no-unneeded-ternary': 'error',
     'no-unused-expressions': [
       'error',
       {
@@ -72,11 +81,7 @@ export const base = defineConfig({
         allowTernary: false,
       },
     ],
-    'no-useless-catch': 'error',
     'no-useless-computed-key': 'error',
-    'no-useless-concat': 'error',
-    'no-useless-constructor': 'error',
-    'no-useless-rename': 'error',
     'no-useless-return': 'error',
     'no-var': 'error',
     // `void promise()` is the explicit fire-and-forget marker used by type-aware promise rules.
@@ -118,8 +123,8 @@ export const base = defineConfig({
       },
     ],
     // Object shapes use `type` for one mental model across aliases, unions, mapped types, and props.
-    'typescript/consistent-type-definitions': ['warn', 'type'],
-    'typescript/consistent-type-exports': 'warn',
+    'typescript/consistent-type-definitions': ['error', 'type'],
+    'typescript/consistent-type-exports': 'error',
     'typescript/consistent-type-imports': [
       'error',
       {
@@ -141,6 +146,7 @@ export const base = defineConfig({
     'typescript/no-namespace': ['error', { allowDefinitionFiles: true }],
     'typescript/no-non-null-assertion': 'error',
     'typescript/no-require-imports': 'error',
+    'typescript/no-unsafe-function-type': 'error',
     'typescript/no-restricted-types': [
       'error',
       {
@@ -172,9 +178,12 @@ export const base = defineConfig({
       },
     ],
     'typescript/no-useless-constructor': 'error',
-    'typescript/prefer-as-const': 'error',
     'typescript/prefer-optional-chain': 'error',
     'unicorn/catch-error-name': ['error', { name: 'error' }],
+    'unicorn/no-array-callback-reference': 'error',
+    'unicorn/no-array-method-this-argument': 'error',
+    'unicorn/no-new-buffer': 'error',
+    'unicorn/no-unreadable-array-destructuring': 'error',
     'unicorn/error-message': 'error',
     // Naming and file layout conventions are project/framework-specific.
     'unicorn/filename-case': 'off',
@@ -187,7 +196,51 @@ export const base = defineConfig({
     'unicorn/prefer-export-from': 'off',
     'unicorn/prefer-includes': 'error',
     'unicorn/prefer-module': 'error',
-    'unicorn/prefer-string-starts-ends-with': 'error',
-    'unicorn/prefer-top-level-await': 'error',
+    'unicorn/prefer-string-raw': 'off',
+    // Top-level await changes module evaluation and deployment behavior; require a project decision.
+    'unicorn/prefer-top-level-await': 'off',
   },
 })
+
+export type ConfigLayer = Omit<OxlintConfig, 'extends' | 'options' | 'plugins' | 'settings'> & {
+  extends?: ConfigLayer[]
+  options?: {
+    typeAware?: true
+  }
+  plugins?: Array<NonNullable<OxlintConfig['plugins']>[number] | 'effecttsgo'>
+  // Oxlint documents `linkAttribute`, but the v1.70 generic component type exposes only `attribute`.
+  settings?: Omit<NonNullable<OxlintConfig['settings']>, 'react'> & {
+    react?: {
+      linkComponents?: Array<string | { name: string; linkAttribute: string | string[] }>
+      [key: string]: unknown
+    }
+  }
+}
+
+export function compose(...layers: ConfigLayer[]): ConfigLayer {
+  const configs: ConfigLayer[] = [base, ...layers]
+  const plugins = new Set<NonNullable<ConfigLayer['plugins']>[number]>()
+  let typeAware = false
+
+  for (const config of configs) {
+    if (config.options?.typeAware === true) {
+      typeAware = true
+    }
+
+    for (const plugin of config.plugins ?? []) {
+      plugins.add(plugin)
+    }
+  }
+
+  // Oxlint replaces `plugins` in extended configs, so the root declares their union.
+  const composed: ConfigLayer = {
+    extends: configs,
+    plugins: [...plugins],
+  }
+
+  if (typeAware) {
+    composed.options = { typeAware: true }
+  }
+
+  return composed
+}

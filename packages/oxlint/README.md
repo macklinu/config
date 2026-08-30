@@ -8,40 +8,59 @@
 pnpm add -D @macklinu/oxlint-config oxlint
 ```
 
-Install `oxlint-tsgolint` only in projects that use the type-aware config:
+## Usage
+
+TypeScript Oxlint config files require Node `24` or Node `>=22.18.0`.
+
+Create an `oxlint.config.ts` file in the root of your project:
+
+```ts
+import { compose } from '@macklinu/oxlint-config'
+
+export default compose()
+```
+
+## Layers
+
+- `base`: default correctness, security, module, Promise, TypeScript, Unicorn, and OXC guardrails.
+- `react`: browser, React, React performance, and JSX accessibility rules.
+- `node`: Node globals and `node:` protocol imports.
+- `vitest`: Vitest rules without global test APIs.
+- `typeAware`: TypeScript type-aware rules. Requires `oxlint-tsgolint`.
+- `effect`: optional Effect v4 integration from `@effect/tsgo`.
+
+Use only the layers that match the project:
+
+```ts
+import { compose, node, react, vitest } from '@macklinu/oxlint-config'
+
+export default compose(react, vitest, node)
+```
+
+### Type-aware
 
 ```bash
 pnpm add -D oxlint-tsgolint
 ```
 
-## Usage
-
-TypeScript Oxlint config files require a Node version that can execute TypeScript directly. Use Node `24` or Node `>=22.18.0`.
-
-Create an `oxlint.config.ts` file in the root of your project:
-
 ```ts
-import { defineConfig } from 'oxlint'
-import { base } from '@macklinu/oxlint-config'
+import { compose, typeAware } from '@macklinu/oxlint-config'
 
-export default defineConfig({
-  extends: [base],
-})
+export default compose(typeAware)
 ```
 
-Compose variants for React, Vitest, Node, or type-aware linting:
+### Effect
 
-```ts
-import { defineConfig } from 'oxlint'
-import { base, react, typeAware, vitest } from '@macklinu/oxlint-config'
+Install the Effect lint tooling and patch Oxlint:
 
-export default defineConfig({
-  extends: [base, react, vitest, typeAware],
-})
+```bash
+pnpm add -D @effect/tsgo oxlint oxlint-tsgolint typescript
+pnpm exec effect-tsgo patch --oxlint
 ```
 
-The Vitest config intentionally does not enable Vitest globals. Import test APIs explicitly:
-
 ```ts
-import { expect, test, vi } from 'vitest'
+import { compose } from '@macklinu/oxlint-config'
+import { effect } from '@macklinu/oxlint-config/effect'
+
+export default compose(effect)
 ```

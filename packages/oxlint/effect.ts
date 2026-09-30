@@ -25,7 +25,7 @@ export const effect = {
     ...correctnessRules,
     // Context.Service and Tag keys must stay deterministic across process boundaries.
     'effecttsgo/deterministic-keys': 'error',
-    // Services use the v4 Context.Service declaration form instead of class-based service values.
+    // v4 services use a class declaration, not a Context.Service variable.
     'effecttsgo/service-not-as-class': 'error',
     // `missing-effect-service-dependency` is v3-only and is intentionally not configured.
   },

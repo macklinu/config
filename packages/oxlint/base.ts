@@ -208,7 +208,7 @@ export type ConfigLayer = Omit<OxlintConfig, 'extends' | 'options' | 'plugins' |
     typeAware?: true
   }
   plugins?: Array<NonNullable<OxlintConfig['plugins']>[number] | 'effecttsgo'>
-  // Oxlint documents `linkAttribute`, but the v1.70 generic component type exposes only `attribute`.
+  // Oxlint accepts `linkAttribute`, but its generated component type still exposes only `attribute`.
   settings?: Omit<NonNullable<OxlintConfig['settings']>, 'react'> & {
     react?: {
       linkComponents?: Array<string | { name: string; linkAttribute: string | string[] }>
@@ -219,24 +219,29 @@ export type ConfigLayer = Omit<OxlintConfig, 'extends' | 'options' | 'plugins' |
 
 export function compose(...layers: ConfigLayer[]): ConfigLayer {
   const configs: ConfigLayer[] = [base, ...layers]
-  const plugins = new Set<NonNullable<ConfigLayer['plugins']>[number]>()
   let typeAware = false
+  let env: ConfigLayer['env']
+  let settings: ConfigLayer['settings']
+  let globals: ConfigLayer['globals']
 
   for (const config of configs) {
+    // Oxlint reads these fields from the root only. Later layers win on the same key.
+    if (config.env) env = { ...env, ...config.env }
+    if (config.settings) settings = { ...settings, ...config.settings }
+    if (config.globals) globals = { ...globals, ...config.globals }
+
     if (config.options?.typeAware === true) {
       typeAware = true
     }
-
-    for (const plugin of config.plugins ?? []) {
-      plugins.add(plugin)
-    }
   }
 
-  // Oxlint replaces `plugins` in extended configs, so the root declares their union.
   const composed: ConfigLayer = {
     extends: configs,
-    plugins: [...plugins],
   }
+
+  if (env) composed.env = env
+  if (settings) composed.settings = settings
+  if (globals) composed.globals = globals
 
   if (typeAware) {
     composed.options = { typeAware: true }

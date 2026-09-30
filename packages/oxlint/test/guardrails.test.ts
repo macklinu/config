@@ -1,28 +1,38 @@
+import { spawnSync } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
 import { expect, test } from 'vitest'
 
-import { base, compose, node, react, typeAware, vitest } from '@macklinu/oxlint-config'
-import { effect } from '@macklinu/oxlint-config/effect'
+import { compose, node, react, typeAware } from '@macklinu/oxlint-config'
 
-test('compose retains selected native plugins and root type-aware options', () => {
-  const stackConfig = compose(react, node, vitest)
-  const config = compose(react, node, vitest, typeAware, effect)
+test('compose promotes type-aware options to the root', () => {
+  expect(compose(react, node).options).toBeUndefined()
+  expect(compose(react, node, typeAware).options).toEqual({ typeAware: true })
+})
 
-  expect(stackConfig.options).toBeUndefined()
+test('composed layers supply root settings and globals to Oxlint', () => {
+  const cwd = fileURLToPath(new URL('../', import.meta.url))
+  const result = spawnSync(
+    process.execPath,
+    [
+      fileURLToPath(new URL('../node_modules/oxlint/bin/oxlint', import.meta.url)),
+      '-f',
+      'json',
+      '-c',
+      'test/fixtures/guardrails.config.ts',
+      '-D',
+      'no-undef',
+      'test/fixtures/compose-diagnostics.tsx',
+    ],
+    { cwd, encoding: 'utf8' }
+  )
 
-  expect(config.extends).toEqual([base, react, node, vitest, typeAware, effect])
-  expect(config.plugins).toEqual([
-    'eslint',
-    'typescript',
-    'unicorn',
-    'oxc',
-    'import',
-    'promise',
-    'react',
-    'jsx-a11y',
-    'react-perf',
-    'node',
-    'vitest',
-    'effecttsgo',
+  expect(result.status, result.stderr).toBe(1)
+  const diagnostics = JSON.parse(result.stdout).diagnostics as Array<{
+    code: string
+    message: string
+  }>
+  expect(diagnostics.filter(({ code }) => code === 'react(jsx-no-target-blank)')).toHaveLength(1)
+  expect(diagnostics.filter(({ code }) => code === 'eslint(no-undef)')).toEqual([
+    expect.objectContaining({ message: expect.stringContaining('unknownWorkspaceGlobal') }),
   ])
-  expect(config.options).toEqual({ typeAware: true })
 })

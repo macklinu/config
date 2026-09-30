@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0-not-published",
   "type": "module",
-  "packageManager": "pnpm@10.25.0",
+  "packageManager": "pnpm@12.8.1",
   "scripts": {
     "test": "vitest",
     "lint": "oxlint",

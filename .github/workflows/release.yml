@@ -24,9 +24,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
+          node-version-file: .nvmrc
           cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Install npm with trusted publishing support
+        run: npm install --global 'npm@^11.5.1'
       - name: Create release PR or publish to npm
         id: changesets
         uses: changesets/action@v1
@@ -34,4 +37,4 @@ jobs:
           publish: pnpm release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_USERCONFIG: ${{ runner.temp }}/npm-trusted-publishing.npmrc

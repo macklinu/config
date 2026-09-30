@@ -2,16 +2,12 @@ import { defineConfig } from 'oxlint'
 
 export const typeAware = defineConfig({
   options: {
-    // Kept separate because this requires `oxlint-tsgolint` and TypeScript 7 compatibility.
+    // This layer requires `oxlint-tsgolint`; it must be enabled from the consumer root config.
     typeAware: true,
   },
   rules: {
-    'typescript/await-thenable': 'error',
-    'typescript/no-floating-promises': 'error',
-    // Useful, but React/event-handler patterns can need project-specific tuning.
-    'typescript/no-misused-promises': 'warn',
-    // Depends on type quality, generated types, and defensive checks, so start as a warning.
-    'typescript/no-unnecessary-condition': 'warn',
+    'typescript/no-misused-promises': 'error',
+    'typescript/no-unnecessary-condition': 'error',
     'typescript/prefer-nullish-coalescing': 'error',
     'typescript/switch-exhaustiveness-check': 'error',
   },

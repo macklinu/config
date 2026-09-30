@@ -8,40 +8,67 @@
 pnpm add -D @macklinu/oxlint-config oxlint
 ```
 
-Install `oxlint-tsgolint` only in projects that use the type-aware config:
+## Usage
+
+TypeScript Oxlint config files require Node `24` or Node `>=22.18.0`.
+
+Create an `oxlint.config.ts` file in the root of your project:
+
+```ts
+import { compose } from '@macklinu/oxlint-config'
+
+export default compose()
+```
+
+Run TypeScript typechecking in your project and CI (for example, `pnpm exec tsc --noEmit` with your project `tsconfig.json`). Oxlint's `base` and `typeAware` layers do not run the TypeScript compiler; `oxlint --type-check` is a separate opt-in mode.
+
+## Layers
+
+- `base`: default correctness, security, module, Promise, TypeScript, Unicorn, and OXC guardrails.
+- `react`: browser, React, React performance, and JSX accessibility rules.
+- `node`: Node globals and `node:` protocol imports.
+- `vitest`: Vitest rules without global test APIs.
+- `typeAware`: TypeScript type-aware rules. Requires `oxlint-tsgolint`.
+- `effect`: optional Effect v4 integration from `@effect/tsgo`.
+
+Use only the layers that match the project:
+
+```ts
+import { compose, node, react, vitest } from '@macklinu/oxlint-config'
+
+export default compose(react, vitest, node)
+```
+
+`compose` keeps selected layers' environment, settings, and globals at the root. Later layers override earlier ones on the same environment/global key or settings namespace.
+
+### Type-aware
 
 ```bash
 pnpm add -D oxlint-tsgolint
 ```
 
-## Usage
-
-TypeScript Oxlint config files require a Node version that can execute TypeScript directly. Use Node `24` or Node `>=22.18.0`.
-
-Create an `oxlint.config.ts` file in the root of your project:
-
 ```ts
-import { defineConfig } from 'oxlint'
-import { base } from '@macklinu/oxlint-config'
+import { compose, typeAware } from '@macklinu/oxlint-config'
 
-export default defineConfig({
-  extends: [base],
-})
+export default compose(typeAware)
 ```
 
-Compose variants for React, Vitest, Node, or type-aware linting:
+### Effect
 
-```ts
-import { defineConfig } from 'oxlint'
-import { base, react, typeAware, vitest } from '@macklinu/oxlint-config'
+For Effect v4, install `effect@rc` alongside the lint tooling:
 
-export default defineConfig({
-  extends: [base, react, vitest, typeAware],
-})
+```bash
+pnpm add effect@rc
+pnpm add -D @effect/tsgo oxlint oxlint-tsgolint typescript
 ```
 
-The Vitest config intentionally does not enable Vitest globals. Import test APIs explicitly:
+Add `"prepare": "effect-tsgo patch --oxlint --force"` to the consuming project's scripts so installs reapply the patch. The tested CLI requires `--force`, although its help marks the flag deprecated. Use `--no-typescript --oxlint --force` if TypeScript must stay unpatched.
+
+Peer ranges cannot express the cross-package version matrix. Check [@effect/tsgo's supported versions](https://github.com/Effect-TS/tsgo#supported-package-versions) for your installed tools before patching.
 
 ```ts
-import { expect, test, vi } from 'vitest'
+import { compose } from '@macklinu/oxlint-config'
+import { effect } from '@macklinu/oxlint-config/effect'
+
+export default compose(effect)
 ```

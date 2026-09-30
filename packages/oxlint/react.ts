@@ -1,7 +1,17 @@
-import { defineConfig } from 'oxlint'
+import type { ConfigLayer } from './base.ts'
 
-export const react = defineConfig({
-  plugins: ['eslint', 'typescript', 'unicorn', 'oxc', 'import', 'promise', 'react', 'jsx-a11y'],
+export const react = {
+  plugins: [
+    'eslint',
+    'typescript',
+    'unicorn',
+    'oxc',
+    'import',
+    'promise',
+    'react',
+    'jsx-a11y',
+    'react-perf',
+  ],
   env: {
     // Browser globals live in the React variant, not the base config.
     browser: true,
@@ -9,10 +19,9 @@ export const react = defineConfig({
   },
   settings: {
     react: {
-      version: 'detect',
       linkComponents: [
-        { name: 'Link', attribute: 'to' },
-        { name: 'NavLink', attribute: 'to' },
+        { name: 'Link', linkAttribute: 'to' },
+        { name: 'NavLink', linkAttribute: 'to' },
       ],
     },
     'jsx-a11y': {
@@ -40,13 +49,11 @@ export const react = defineConfig({
     'jsx-a11y/lang': 'error',
     'jsx-a11y/media-has-caption': 'error',
     // Autofocus can be valid in command palettes/dialogs, but it should be an intentional choice.
-    'jsx-a11y/no-autofocus': 'warn',
+    'jsx-a11y/no-autofocus': 'error',
     'jsx-a11y/no-static-element-interactions': 'error',
     'react/button-has-type': 'error',
     // Modern named const components make this less useful, and it creates noise around wrappers.
     'react/display-name': 'off',
-    // Dependency fixes can change behavior, so keep this visible without making every case blocking.
-    'react/exhaustive-deps': 'warn',
     'react/jsx-boolean-value': ['error', 'never'],
     'react/jsx-curly-brace-presence': [
       'error',
@@ -57,17 +64,19 @@ export const react = defineConfig({
     ],
     'react/jsx-filename-extension': 'off',
     'react/jsx-fragments': ['error', 'syntax'],
-    'react/jsx-key': 'error',
     // React Compiler should handle many identity/memoization concerns; avoid pushing manual `useMemo`.
     'react/jsx-no-constructed-context-values': 'off',
     'react/jsx-no-target-blank': 'error',
     'react/jsx-no-useless-fragment': 'error',
+    // Native DOM typos are runtime-facing; valid data/ARIA and custom-element attributes remain permitted.
+    'react/no-unknown-property': 'error',
+    'react-perf/jsx-no-jsx-as-prop': 'error',
+    'react-perf/jsx-no-new-array-as-prop': 'error',
+    'react-perf/jsx-no-new-function-as-prop': 'error',
+    'react-perf/jsx-no-new-object-as-prop': 'error',
     'react/jsx-pascal-case': 'error',
     // Prop spreading is a normal part of React composition, forms, slots, and wrapper components.
     'react/jsx-props-no-spreading': 'off',
-    // TypeScript owns prop typing in these projects.
-    'react/prop-types': 'off',
-    'react/require-default-props': 'off',
     'react/rules-of-hooks': 'error',
   },
-})
+} satisfies ConfigLayer

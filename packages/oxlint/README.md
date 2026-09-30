@@ -20,6 +20,8 @@ import { compose } from '@macklinu/oxlint-config'
 export default compose()
 ```
 
+Run TypeScript typechecking in your project and CI (for example, `pnpm exec tsc --noEmit` with your project `tsconfig.json`). Oxlint's `base` and `typeAware` layers do not run the TypeScript compiler; `oxlint --type-check` is a separate opt-in mode.
+
 ## Layers
 
 - `base`: default correctness, security, module, Promise, TypeScript, Unicorn, and OXC guardrails.

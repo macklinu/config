@@ -2,220 +2,81 @@
 
 - **Status:** Proposed
 - **Date:** 2026-08-27
-- **Decision:** Replace the imperative `init` flow with a plan-first `setup` command.
+- **Decision:** Replace the imperative `init` flow with reviewed Oxlint, Oxfmt, and Lefthook setup for pnpm repositories.
 
-## Context
+## Scope and review
 
-The existing ESLint initializer changes packages and files in one path. It cannot show every change before it writes, reject stale state, or represent an unclear configuration as a conflict. See [`packages/eslint/src/init.ts`](../../packages/eslint/src/init.ts).
-
-The replacement must set up a repository safely. The first integration sets up Oxlint and Oxfmt: it installs the required packages, creates missing baseline configs, and adds both commands to Lefthook. It updates an existing Lefthook `pre-commit` hook or creates a YAML config when none exists.
-
-## Decision
-
-### Command surface
+The [current ESLint initializer](../../packages/eslint/src/init.ts) installs packages and writes files before review. This RFC proposes one replacement command:
 
 ```text
-config setup [integration] [--cwd <directory>] [--review] [--yes]
+config setup [--cwd <directory>] [--yes]
 ```
 
-- `config setup` prompts for an integration, then scans, reviews, and asks for approval.
-- `config setup oxlint` skips the integration prompt. It still reviews and asks for approval.
-- `--cwd` finds the Git repository root. The first release needs its root `package.json`; it cannot target a workspace leaf.
-- The default review is a portable unified diff. It uses color when supported.
-- `--review` shows an OpenTUI multi-file diff. It needs a TTY and includes approval.
-- `--yes` is the only non-interactive approval. It needs an explicit integration and cannot be combined with `--review`.
-- There is no `--force`, compatibility `init` command, or implicit apply mode.
+Resolve `--cwd` to the Git repository root, not a workspace leaf. Require a root `package.json` with `packageManager: "pnpm@…"` and an available pnpm executable. Allow a missing lockfile; refuse foreign or ambiguous lockfiles, non-Git directories, and unsupported hook layouts before changes.
 
-A conflicted plan cannot apply. A declined plan writes nothing.
+Show a unified diff for text changes, the exact package and hook-install commands, and the hook target. Explain pnpm's effects on the manifest, lockfile, and `node_modules`, which have no predictable static diff, and the formatter's future staging behavior. Ask for approval after review; `--yes` skips only the prompt, not review or safety checks.
 
-### Architecture
+Decline or conflict means no command or write. Other package managers, including Nub, are deferred. No integration chooser, TUI, or `--force` is needed.
 
-Repository I/O and process commands are Effect services. Planning is pure and uses one immutable repository snapshot.
-
-```mermaid
-flowchart TD
-  CLI["CLI / prompts"] --> Scan["Scan repository"]
-  Scan --> Detect["Detect integration"]
-  Detect --> Plan["Build change plan"]
-  Plan --> Conflict{"Has conflicts?"}
-  Conflict -->|Yes| Stop["Stop without changes"]
-  Conflict -->|No| Review["Show diff or TUI review"]
-  Review --> Approve{"Approved?"}
-  Approve -->|No| Stop
-  Approve -->|Yes| Apply["Revalidate and apply"]
-```
-
-```ts
-interface Integration<State> {
-  readonly id: IntegrationId
-  readonly detect: (snapshot: RepositorySnapshot) => State
-  readonly plan: (state: State, policy: SetupPolicy) => ChangePlan
-}
-```
-
-`RepositorySnapshot` records raw source bytes, file fingerprints, candidate config paths, package-manager facts, and Git-hook facts. It cannot write to the filesystem or run a process.
-
-Modules:
-
-- `repository`: Git root resolution, path validation, raw reads, fingerprints, symlink checks, and repository locking.
-- `setup/plan`: action types, plan invariants, semantic plan comparison, and conflicts.
-- `setup/oxlint`: Oxlint-specific detection and planning.
-- `setup/oxfmt`: Oxfmt-specific detection and planning.
-- `setup/lefthook`: format detection plus format-specific semantic editors.
-- `setup/typescript`: TypeScript config classification and narrow source patches.
-- `setup/package-manager`: package-manager detection and structured command rendering.
-- `setup/review`: unified diff and OpenTUI views of the same immutable plan.
-- `setup/apply`: revalidation, process boundaries, atomic file replacement, and result reporting.
-
-### Plan actions
-
-`Action` is an internal `Data.TaggedEnum` value. It is not a CLI wire format.
-
-```ts
-type Action = Data.TaggedEnum<{
-  readonly Create: { readonly path: string; readonly contents: string; readonly expected: 'missing' }
-  readonly Update: { readonly path: string; readonly before: string; readonly after: string; readonly expected: string }
-  readonly Command: { readonly cwd: string; readonly executable: string; readonly args: ReadonlyArray<string> }
-  readonly NoChange: { readonly target: string; readonly reason: string }
-  readonly Conflict: { readonly paths: ReadonlyArray<string>; readonly reason: string; readonly remediation: string }
-}>
-
-const Action = Data.taggedEnum<Action>()
-```
-
-All paths are normalized and repository-relative. `Create` and `Update` own exact UTF-8 source. An `Update` has the full before and after content; review shows only changed hunks. A `Command` has an executable and argument vector, never a shell string.
-
-A plan records its detection inputs, ordered actions, stable digest, and action dependencies. The planner rejects path escape, duplicate writers, invalid update fingerprints, and plans with conflicts.
-
-### Oxlint and Oxfmt integration
-
-The base config comes from the current documented Oxlint package surface:
-
-```ts
-import { defineConfig } from 'oxlint'
-import { base } from '@macklinu/oxlint-config'
-
-export default defineConfig({
-  extends: [base],
-})
-```
-
-See [`packages/oxlint/README.md`](../../packages/oxlint/README.md).
-
-Initial state handling:
-
-- Missing `oxlint.config.ts` → `Create` the baseline config.
-- Existing config that already extends the required `base` config → `NoChange`.
-- Any other existing Oxlint config → `Conflict`.
-
-Do not reprint an existing TypeScript config. Later support may use the TypeScript parser and span-based edits for a canonical static `export default defineConfig({ extends: [...] })` form only. Dynamic exports, spreads, unclear aliases, and multiple default exports remain conflicts.
-
-Oxfmt uses a baseline `.oxfmtrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxfmt/configuration_schema.json"
-}
-```
-
-Initial state handling:
-
-- Missing `.oxfmtrc.json` → `Create` the baseline config.
-- Existing `.oxfmtrc.json` → `NoChange`.
-
-### Lefthook integration and installation
-
-Lefthook supports YAML, TOML, JSON, and JSONC main configs in several documented locations. The scanner finds every documented main config and `lefthook-local` overlay. It does not guess which of several main configs Lefthook will use.
-
-The planner targets `pre-commit.commands.oxlint` and `pre-commit.commands.oxfmt`. Each format needs its own source-preserving editor; a YAML parser is not a generic Lefthook editor.
-
-The first write adapter accepts zero or one main YAML config. An existing config must have a mapping-shaped `pre-commit.commands`; when none exists, the adapter creates `lefthook.yml` with that shape. It inserts a command only when its identifier is absent:
-
-```yaml
-pre-commit:
-  commands:
-    oxlint:
-      glob: '*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}'
-      run: pnpm exec oxlint "{staged_files}"
-    oxfmt:
-      glob: '*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}'
-      run: pnpm exec oxfmt "{staged_files}"
-```
-
-The command renderer uses `pnpm exec` in a pnpm repository and `nubx` in a Nub repository. It validates with a YAML CST parser, then inserts a token span. It never parses and stringifies the whole document, and it preserves every byte outside the inserted node.
-
-The first slice reports a conflict for:
-
-- a non-YAML config or more than one main config;
-- `jobs`, malformed YAML, or duplicate keys; or
-- an existing different `oxlint` or `oxfmt` command.
-
-Future TOML, JSON, and JSONC adapters must preserve source bytes in the same way.
-
-`lefthook install` is separate. Lefthook reads its config whenever its installed hook runs. The Lefthook npm package also installs hooks from its postinstall script. See [Lefthook install](https://lefthook.dev/usage/commands/install/).
-
-The first slice never runs `lefthook install`. It changes Git hooks, and the scanner cannot safely overwrite a custom hook. A later `--install-hook` mode may add `Command { executable: "lefthook", args: ["install", "pre-commit"] }` only when the main config exists and the target hook is absent or conclusively Lefthook-managed. Any custom or unknown hook is a conflict.
-
-### Package-manager commands
-
-Package-manager detection is pure:
-
-1. Read `package.json#packageManager`.
-2. Compare it with recognized lockfiles.
-3. Require agreement and a known executable.
-4. Otherwise report a conflict.
-
-Never guess npm, invoke Corepack, or install a package manager. An adapter renders the command. The first slice supports only pnpm and Nub:
-
-```text
-pnpm add --save-dev --ignore-scripts \
-  oxlint@<compatibility-version> \
-  @macklinu/oxlint-config@<compatibility-version> \
-  oxfmt@<compatibility-version>
-
-nub add --save-dev --ignore-scripts \
-  oxlint@<compatibility-version> \
-  @macklinu/oxlint-config@<compatibility-version> \
-  oxfmt@<compatibility-version>
-```
-
-Use `--workspace-root` only for a pnpm or Nub workspace root. The CLI ships an exact compatibility matrix; it never uses `latest` or mutable ranges. Compatible packages are `NoChange`. An incompatible version or unclear dependency location is a conflict.
-
-`--ignore-scripts` blocks unreviewed dependency lifecycle scripts. The review must say that the command changes `package.json` and the lockfile. Package-manager output cannot have a truthful static diff before the command runs.
-
-### Revalidation and apply
+## Plan and apply
 
 ```mermaid
 flowchart LR
-  Approved["Approved plan"] --> Lock["Acquire Git-directory lock"]
-  Lock --> Scan["Re-scan and re-plan"]
-  Scan --> Match{"Same plan and fingerprints?"}
-  Match -->|No| Stale["Reject stale plan"]
-  Match -->|Yes| Commands["Run package-manager commands and verify postconditions"]
-  Commands --> Targets["Revalidate text-file targets"]
-  Targets --> Write["fsync temporary files, preserve modes, and atomically rename"]
+  Scan --> Plan --> Review
+  Review -->|approved| Revalidate --> Apply
+  Revalidate -->|stale| Stop
 ```
 
-Each file replacement is atomic. The full operation is not atomic across package-manager commands and multiple files. On failure, report completed actions. Do not auto-rollback: it can overwrite concurrent user changes and cannot safely undo package-manager side effects.
+Scan the manifest, lockfile, config aliases and overlays, file bytes or absence, symlinks, and effective Git hook path and contents. A pure planner returns text changes, commands as executable plus argv, and conflicts or unchanged notes. Review and apply consume the same plan.
 
-## Delivery order
+Keep one pnpm/Oxlint/Oxfmt/Lefthook flow, without an adapter registry, action graph, or persisted plan. Use Effect at file, process, and terminal boundaries; `Data.TaggedEnum` is optional internal modeling, not a reason to add services.
 
-1. Plan model, repository snapshot, conflict rendering, default diff review, approval, and pure fixture tests.
-2. First vertical slice: Oxlint and Oxfmt, a pnpm or Nub repository root, missing-or-correct baseline configs, zero or one supported Lefthook YAML config, stale-plan check, and atomic text writes.
-3. Boundary tests: comments and anchors, malformed or duplicate YAML, a new conflicting config file, symlink escape, stale source, command failure, and partial-write reporting.
-4. OpenTUI review, then format adapters and package-manager adapters one at a time.
-5. Narrow TypeScript edits and explicit safe hook installation.
+Own only generated baselines and the two named Lefthook commands. Never overwrite author-owned configs, follow escaping symlinks, or change unrelated YAML bytes. A different command with either name conflicts; setup process commands use argv, while Lefthook `run` uses a shell string.
 
-## Out of scope for the first vertical slice
+## Config discovery
 
-- Installing Lefthook.
-- Automatic `lefthook install`.
-- TOML, JSON, JSONC, multiple config files, `lefthook-local` mutation, and `jobs` mutation.
-- Editing a non-canonical Oxlint TypeScript config.
-- Workspace leaf targets, package-manager bootstrap, dependency upgrades, or package-manager support beyond pnpm and Nub.
-- Automatic React, Vitest, Node, or type-aware Oxlint profile selection.
-- `--force`, shell command strings, global reformatting, persisted plans, JSON output, and automatic hook execution.
+- **Oxlint:** Scan root `.oxlintrc.json`, `.oxlintrc.jsonc`, `oxlint.config.ts`, and `oxlint.config.mts` ([lookup](https://oxc.rs/docs/guide/usage/linter/config)). With none, create `oxlint.config.ts` using the [documented baseline](../../packages/oxlint/README.md). Require Node 22.18+ or 24+ for this TS config. An exact generated baseline is unchanged on rerun; other existing configs, including TS/MTS, conflict without execution or edits. Multiple root names conflict.
 
-## Consequences
+- **Oxfmt:** Scan root `.oxfmtrc.json`, `.oxfmtrc.jsonc`, `oxfmt.config.ts`, and `oxfmt.config.mts` ([lookup](https://oxc.rs/docs/guide/usage/formatter/config.html)). With none, create `.oxfmtrc.json` containing only `"$schema": "./node_modules/oxfmt/configuration_schema.json"`. Preserve one valid JSON/JSONC config; refuse invalid content, multiple names, or TS/MTS whose behavior requires execution. Leave nested configs alone and do not promise one policy for every file.
 
-Setup stops when a safe configuration needs a guess. The first release supports fewer repository shapes, but every supported shape has a reviewable plan, stale-state protection, and a small source-preserving change. New shapes need explicit adapters.
+- **Lefthook:** Scan all [documented main names](https://lefthook.dev/configuration/) in the root and `.config`: `lefthook.yml`, `.yaml`, `.toml`, `.json`, and `.jsonc`, plus root dot-prefixed names. Scan the corresponding `lefthook-local` overlays, including local-only setups. Multiple main files or any overlay conflict; create `lefthook.yml` only when none exist.
+
+For an existing Lefthook config, accept one YAML main with mapping-shaped `pre-commit.commands`, including an absent mapping that can be inserted safely. Refuse other formats, `jobs`, duplicate keys, anchors/aliases/merges at the insertion path, and composition or settings that can replace or skip the planned commands, such as `extends` or `remotes`. Report unsupported shapes, preserve unrelated bytes, and accept existing named commands only when they match the planned entries.
+
+## Formatter and staging policy
+
+Add named `oxlint` and `oxfmt` pre-commit commands for staged JS/TS files matching `*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}`. Oxlint lints these files; Oxfmt writes them and Lefthook [`stage_fixed: true`](https://lefthook.dev/configuration/stage_fixed/) stages the fixes. Do not replace this behavior with `--check`.
+
+Before formatting or staging, reject any matched staged file that also has unstaged changes. The user must stage or set aside those changes first. Without this check, `stage_fixed` can include initially unstaged hunks.
+
+The check must run before Lefthook hides unstaged content. Lefthook 2.2.2 auto-stashes it before command execution, so a command-level `git diff` guard does not enforce this refusal. Specify behavior here rather than unverified shell syntax; prove the check and [filename expansion](https://lefthook.dev/configuration/run/) with the selected release before implementation ships.
+
+Disclose fix-and-stage behavior and partially staged refusal in the setup review.
+
+## Packages and hook activation
+
+Install missing dev dependencies `oxlint`, `@macklinu/oxlint-config`, `oxfmt`, and `lefthook` with versions tested at CLI release. Use `pnpm add -D --ignore-scripts`, adding `--workspace-root` only at a pnpm workspace root. Keep compatible declared dependencies; incompatible versions or unclear dependency locations conflict rather than trigger upgrades.
+
+If dependencies are declared but not installed, review `pnpm install --ignore-scripts`. Verify the installed tools before proceeding. [`@macklinu/oxlint-config` requires Oxlint >=1.70.0](../../packages/oxlint/package.json).
+
+Before package commands, resolve Git's effective hook path. Refuse configured `core.hooksPath`, linked worktrees with shared hooks, symlinked hook targets, and unmanaged `pre-commit` files. Recognize a managed hook by its Lefthook-generated wrapper, not by an arbitrary mention of Lefthook; never reset hook settings or remove another tool's hook.
+
+`--ignore-scripts` suppresses automatic hook installation. After applying configs, recheck the target and explicitly run [`pnpm exec lefthook install pre-commit`](https://lefthook.dev/usage/commands/install/) for an absent or recognized managed hook that needs installation or refresh. Leave an already active managed hook unchanged.
+
+Verify that the effective `pre-commit` file is executable and Lefthook-managed. An inactive hook or installation failure is setup failure, even when packages and configs changed. Hook installation changes Git state outside the text diff.
+
+## Revalidation and failures
+
+Before apply, rescan every reviewed input and compare it with the plan, including config aliases, overlays, file bytes or absence, symlinks, hook ownership, and chosen argv. If anything changed, stop for a new review. Recheck config discovery and each text target before replacement, and the hook before installation.
+
+Run package commands, verify their results, atomically replace approved text files, then activate and verify the hook. Treat pnpm's manifest/lockfile edits as expected command effects, not stale patches to replay. These steps are not one atomic operation.
+
+On failure, stop and report completed commands, changed files, and remaining work. Do not roll back package changes or overwrite concurrent edits. A rerun plans from current state; a CLI lock cannot replace stale checks because it does not block external tools.
+
+## Verification and limits
+
+Use fixtures with independent expected diffs and conflicts. In a disposable Git repo, exercise review, approval, package installation, config creation, and an active pre-commit hook. Check decline without side effects, rerun without duplicates, stale changes before and during apply, unsupported configs and hook layouts, install failure, and partial-result reporting.
+
+Exercise the installed hook with multiple staged JS/TS files and a space-containing filename. Prove successful formatting and staging, plus partially staged refusal without changing the index or files. Do not install test hooks in this repository's checkout.
+
+Workspace leaves, other managers, author-owned Oxlint config edits, non-YAML Lefthook edits, overlay edits, profile selection, and OpenTUI review are outside this slice. Unsupported state fails clearly rather than running a smaller, unreviewed setup.

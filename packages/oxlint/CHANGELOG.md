@@ -1,5 +1,11 @@
 # @macklinu/oxlint-config
 
+## 2.1.0
+
+### Minor Changes
+
+- 6dfcbc7: Allow inline React prop allocations and unstable Effect APIs. Require nominal schema class brands with `@effect/tsgo` 0.53.1 or later.
+
 ## 2.0.0
 
 ### Major Changes

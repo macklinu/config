@@ -72,6 +72,6 @@ import { effect } from '@macklinu/oxlint-config/effect'
 export default compose(effect)
 ```
 
-## Known limitation
+## Array policy
 
-Oxlint can incorrectly report `unicorn/no-array-callback-reference` for namespace imports from `effect/` subpaths. Review these [callback-reference diagnostics](https://oxc.rs/docs/guide/usage/linter/rules/unicorn/no-array-callback-reference.html) before changing your code.
+Effect subpath namespace imports and data-first or curried calls are supported. The two Unicorn rules that misidentify these calls are disabled, so native Array callback references and `thisArg` arguments are not checked by those rules.

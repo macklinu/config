@@ -27,7 +27,7 @@ Run `pnpm exec tsc --noEmit` separately in your project and CI.
 ## Layers
 
 - `base`: default correctness, security, module, Promise, TypeScript, Unicorn, and OXC guardrails.
-- `react`: automatic JSX, browser, React, and JSX accessibility rules. Inline prop allocations are allowed.
+- `react`: automatic JSX, browser, React, and JSX accessibility rules.
 - `node`: Node globals and `node:` protocol imports.
 - `vitest`: Vitest rules without global test APIs.
 - `typeAware`: TypeScript type-aware rules. Requires `oxlint-tsgolint`.

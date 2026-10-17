@@ -70,6 +70,7 @@ export const react = {
     'react/jsx-no-useless-fragment': 'error',
     // Native DOM typos are runtime-facing; valid data/ARIA and custom-element attributes remain permitted.
     'react/no-unknown-property': 'error',
+    // React Compiler handles memoization; these rules should not force manual memoization.
     'react-perf/jsx-no-jsx-as-prop': 'off',
     'react-perf/jsx-no-new-array-as-prop': 'off',
     'react-perf/jsx-no-new-function-as-prop': 'off',

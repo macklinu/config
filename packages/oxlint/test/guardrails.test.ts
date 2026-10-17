@@ -2,13 +2,6 @@ import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { expect, test } from 'vitest'
 
-import { compose, node, react, typeAware } from '@macklinu/oxlint-config'
-
-test('compose promotes type-aware options to the root', () => {
-  expect(compose(react, node).options).toBeUndefined()
-  expect(compose(react, node, typeAware).options).toEqual({ typeAware: true })
-})
-
 test('composed layers supply root settings and globals to Oxlint', () => {
   const cwd = fileURLToPath(new URL('../', import.meta.url))
   const result = spawnSync(

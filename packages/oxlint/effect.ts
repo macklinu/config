@@ -1,6 +1,6 @@
 import { correctness } from '@effect/tsgo/oxlint-presets'
 
-import type { ConfigLayer } from './base.ts'
+import type { ConfigLayer } from './base.js'
 
 const correctnessRules: NonNullable<ConfigLayer['rules']> = {}
 const plugins: NonNullable<ConfigLayer['plugins']> = ['effecttsgo']
@@ -15,7 +15,7 @@ for (const plugin of correctness.plugins ?? []) {
   }
 }
 
-export const effect = {
+export const effect: ConfigLayer = {
   options: {
     ...correctness.options,
     typeAware: true,
@@ -29,4 +29,4 @@ export const effect = {
     'effecttsgo/service-not-as-class': 'error',
     // `missing-effect-service-dependency` is v3-only and is intentionally not configured.
   },
-} satisfies ConfigLayer
+}

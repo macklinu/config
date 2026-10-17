@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "My personal Oxlint configuration",
   "type": "module",
-  "main": "index.ts",
-  "types": "index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "publishConfig": {
     "access": "public",
     "provenance": true
@@ -15,16 +15,37 @@
     "directory": "packages/oxlint"
   },
   "exports": {
-    ".": "./index.ts",
-    "./base": "./base.ts",
-    "./effect": "./effect.ts",
-    "./node": "./node.ts",
-    "./react": "./react.ts",
-    "./type-aware": "./type-aware.ts",
-    "./vitest": "./vitest.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./base": {
+      "types": "./dist/base.d.ts",
+      "import": "./dist/base.js"
+    },
+    "./effect": {
+      "types": "./dist/effect.d.ts",
+      "import": "./dist/effect.js"
+    },
+    "./node": {
+      "types": "./dist/node.d.ts",
+      "import": "./dist/node.js"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.js"
+    },
+    "./type-aware": {
+      "types": "./dist/type-aware.d.ts",
+      "import": "./dist/type-aware.js"
+    },
+    "./vitest": {
+      "types": "./dist/vitest.d.ts",
+      "import": "./dist/vitest.js"
+    }
   },
   "files": [
-    "*.ts",
+    "dist",
     "README.md"
   ],
   "keywords": [
@@ -33,14 +54,15 @@
   "author": "Mackie Underdown <macklinu@users.noreply.github.com>",
   "license": "MIT",
   "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "pnpm run build",
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
     "@effect/tsgo": ">=0.47.0",
     "effect": ">=4.0.0-0 <5.0.0",
     "oxlint": ">=1.86.0",
-    "oxlint-tsgolint": ">=7.0.2003",
-    "typescript": ">=7.0.2"
+    "oxlint-tsgolint": ">=7.0.2003"
   },
   "peerDependenciesMeta": {
     "@effect/tsgo": {
@@ -50,9 +72,6 @@
       "optional": true
     },
     "oxlint-tsgolint": {
-      "optional": true
-    },
-    "typescript": {
       "optional": true
     }
   },

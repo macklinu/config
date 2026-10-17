@@ -4,8 +4,10 @@
 
 ## Installation
 
+TypeScript `>=7.0.0` is required.
+
 ```bash
-pnpm add -D @macklinu/oxlint-config oxlint
+pnpm add -D @macklinu/oxlint-config oxlint typescript@^7.0.0
 ```
 
 ## Usage
@@ -20,12 +22,12 @@ import { compose } from '@macklinu/oxlint-config'
 export default compose()
 ```
 
-Run TypeScript typechecking in your project and CI (for example, `pnpm exec tsc --noEmit` with your project `tsconfig.json`). Oxlint's `base` and `typeAware` layers do not run the TypeScript compiler; `oxlint --type-check` is a separate opt-in mode.
+Run `pnpm exec tsc --noEmit` separately in your project and CI.
 
 ## Layers
 
 - `base`: default correctness, security, module, Promise, TypeScript, Unicorn, and OXC guardrails.
-- `react`: browser, React, React performance, and JSX accessibility rules.
+- `react`: automatic JSX, browser, React, React performance, and JSX accessibility rules.
 - `node`: Node globals and `node:` protocol imports.
 - `vitest`: Vitest rules without global test APIs.
 - `typeAware`: TypeScript type-aware rules. Requires `oxlint-tsgolint`.
@@ -39,8 +41,6 @@ import { compose, node, react, vitest } from '@macklinu/oxlint-config'
 export default compose(react, vitest, node)
 ```
 
-`compose` keeps selected layers' environment, settings, and globals at the root. Later layers override earlier ones on the same environment/global key or settings namespace.
-
 ### Type-aware
 
 ```bash
@@ -53,18 +53,17 @@ import { compose, typeAware } from '@macklinu/oxlint-config'
 export default compose(typeAware)
 ```
 
+Your source and `tsconfig` must meet Oxlint's [TypeScript compatibility requirements](https://oxc.rs/docs/guide/usage/linter/type-aware.html#typescript-compatibility).
+
 ### Effect
 
-For Effect v4, install `effect@rc` alongside the lint tooling:
+For Effect v4, add the optional lint integration:
 
 ```bash
-pnpm add effect@rc
-pnpm add -D @effect/tsgo oxlint oxlint-tsgolint typescript
+pnpm add -D @effect/tsgo oxlint oxlint-tsgolint
 ```
 
-Add `"prepare": "effect-tsgo patch --oxlint --force"` to the consuming project's scripts so installs reapply the patch. The tested CLI requires `--force`, although its help marks the flag deprecated. Use `--no-typescript --oxlint --force` if TypeScript must stay unpatched.
-
-Peer ranges cannot express the cross-package version matrix. Check [@effect/tsgo's supported versions](https://github.com/Effect-TS/tsgo#supported-package-versions) for your installed tools before patching.
+Add `"prepare": "effect-tsgo patch --no-typescript --oxlint --force"` to your project's scripts to patch Oxlint without changing your TypeScript compiler. Check [@effect/tsgo's supported versions](https://github.com/Effect-TS/tsgo#supported-package-versions) before patching.
 
 ```ts
 import { compose } from '@macklinu/oxlint-config'
@@ -72,3 +71,7 @@ import { effect } from '@macklinu/oxlint-config/effect'
 
 export default compose(effect)
 ```
+
+## Known limitation
+
+Oxlint can incorrectly report `unicorn/no-array-callback-reference` for namespace imports from `effect/` subpaths. Review these [callback-reference diagnostics](https://oxc.rs/docs/guide/usage/linter/rules/unicorn/no-array-callback-reference.html) before changing your code.

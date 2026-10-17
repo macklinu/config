@@ -1,4 +1,4 @@
-import type { ConfigLayer } from './base.ts'
+import type { ConfigLayer } from './base.js'
 
 export const react = {
   plugins: [
@@ -77,6 +77,8 @@ export const react = {
     'react/jsx-pascal-case': 'error',
     // Prop spreading is a normal part of React composition, forms, slots, and wrapper components.
     'react/jsx-props-no-spreading': 'off',
+    // The automatic JSX transform does not need a React import.
+    'react/react-in-jsx-scope': 'off',
     'react/rules-of-hooks': 'error',
   },
 } satisfies ConfigLayer

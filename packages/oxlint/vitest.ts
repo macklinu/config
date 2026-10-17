@@ -7,6 +7,10 @@ export const vitest = defineConfig({
     'vitest/consistent-test-it': ['error', { fn: 'test' }],
     'vitest/consistent-vitest-vi': 'error',
     'vitest/max-expects': 'off',
+    'vitest/no-standalone-expect': [
+      'error',
+      { additionalTestBlockFunctions: ['it.effect', 'it.effect.each', 'it.prop'] },
+    ],
     // Assertion-count rules tend to make tests noisier without much confidence gain.
     'vitest/prefer-expect-assertions': 'off',
   },

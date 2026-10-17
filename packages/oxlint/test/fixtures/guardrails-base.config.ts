@@ -1,3 +1,3 @@
-import { compose } from '../../index.ts'
+import { compose } from '@macklinu/oxlint-config'
 
 export default compose()

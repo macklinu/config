@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "module": "NodeNext",
+    "target": "ES2022",
+    "skipLibCheck": true
+  },
+  "include": ["*.config.ts", "types.ts"]
+}

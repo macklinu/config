@@ -9,3 +9,19 @@ export const browser = document.title + window.location.href + self.location.hre
 export const server = process.pid + Buffer.byteLength('x')
 export const flag = customBuildFlag
 export const missing = unknownWorkspaceGlobal
+
+declare const Card: (props: {
+  details: { label: string }
+  items: string[]
+  onSelect: () => string
+  fallback: unknown
+}) => unknown
+
+export const InlineProps = ({ label }: { label: string }) => (
+  <Card
+    details={{ label }}
+    items={[label]}
+    onSelect={() => label}
+    fallback={<span>{label}</span>}
+  />
+)

@@ -70,10 +70,10 @@ export const react = {
     'react/jsx-no-useless-fragment': 'error',
     // Native DOM typos are runtime-facing; valid data/ARIA and custom-element attributes remain permitted.
     'react/no-unknown-property': 'error',
-    'react-perf/jsx-no-jsx-as-prop': 'error',
-    'react-perf/jsx-no-new-array-as-prop': 'error',
-    'react-perf/jsx-no-new-function-as-prop': 'error',
-    'react-perf/jsx-no-new-object-as-prop': 'error',
+    'react-perf/jsx-no-jsx-as-prop': 'off',
+    'react-perf/jsx-no-new-array-as-prop': 'off',
+    'react-perf/jsx-no-new-function-as-prop': 'off',
+    'react-perf/jsx-no-new-object-as-prop': 'off',
     'react/jsx-pascal-case': 'error',
     // Prop spreading is a normal part of React composition, forms, slots, and wrapper components.
     'react/jsx-props-no-spreading': 'off',

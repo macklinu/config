@@ -23,6 +23,8 @@ export const effect: ConfigLayer = {
   plugins,
   rules: {
     ...correctnessRules,
+    'effecttsgo/unstable-api-usage': 'off',
+    'effecttsgo/schema-class-missing-brand': 'error',
     // Context.Service and Tag keys must stay deterministic across process boundaries.
     'effecttsgo/deterministic-keys': 'error',
     // v4 services use a class declaration, not a Context.Service variable.

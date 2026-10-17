@@ -73,6 +73,7 @@ export const base = defineConfig({
     'no-promise-executor-return': 'error',
     'no-sequences': 'error',
     'no-throw-literal': 'error',
+    'no-underscore-dangle': 'off',
     'no-unused-expressions': [
       'error',
       {

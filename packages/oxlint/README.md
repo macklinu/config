@@ -4,8 +4,10 @@
 
 ## Installation
 
+TypeScript `>=7.0.0` is required.
+
 ```bash
-pnpm add -D @macklinu/oxlint-config oxlint
+pnpm add -D @macklinu/oxlint-config oxlint typescript@^7.0.0
 ```
 
 ## Usage
@@ -51,7 +53,7 @@ import { compose, typeAware } from '@macklinu/oxlint-config'
 export default compose(typeAware)
 ```
 
-Generic typed lint does not require changing your installed TypeScript compiler. Your source and `tsconfig` must meet Oxlint's [TypeScript compatibility requirements](https://oxc.rs/docs/guide/usage/linter/type-aware.html#typescript-compatibility).
+Your source and `tsconfig` must meet Oxlint's [TypeScript compatibility requirements](https://oxc.rs/docs/guide/usage/linter/type-aware.html#typescript-compatibility).
 
 ### Effect
 

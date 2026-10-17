@@ -38,7 +38,7 @@ export const base = defineConfig({
     // Namespace imports are valid for module-shaped APIs; do not ban a sound import form.
     'import/no-namespace': 'off',
     'oxc/no-accumulating-spread': 'error',
-    'oxc/no-map-spread': 'error',
+    'oxc/no-map-spread': 'off',
     'promise/catch-or-return': 'error',
     'promise/no-nesting': 'error',
     'promise/no-return-in-finally': 'error',

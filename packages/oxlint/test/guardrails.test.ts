@@ -67,3 +67,28 @@ test.each(['guardrails-base.config.ts', 'provider-identifiers.config.ts'])(
     )
   }
 )
+
+test.each(['guardrails-base.config.ts', 'map-spread.config.ts'])(
+  '%s allows per-item copies but rejects growing accumulator copies',
+  (config) => {
+    const cwd = fileURLToPath(new URL('../', import.meta.url))
+    const result = spawnSync(
+      process.execPath,
+      [
+        fileURLToPath(new URL('../node_modules/oxlint/bin/oxlint', import.meta.url)),
+        '-f',
+        'json',
+        '-c',
+        `test/fixtures/${config}`,
+        'test/fixtures/map-spread.ts',
+      ],
+      { cwd, encoding: 'utf8' }
+    )
+
+    expect(result.status, result.stderr).toBe(1)
+    const diagnostics = JSON.parse(result.stdout).diagnostics as Array<{ code: string }>
+    const codes = diagnostics.map(({ code }) => code)
+    expect(codes).not.toContain('oxc(no-map-spread)')
+    expect(codes).toContain('oxc(no-accumulating-spread)')
+  }
+)

@@ -1,5 +1,11 @@
 # @macklinu/oxlint-config
 
+## 2.1.1
+
+### Patch Changes
+
+- 7deb934: Disable `eslint/no-underscore-dangle` to allow provider and framework identifiers.
+
 ## 2.1.0
 
 ### Minor Changes

@@ -28,4 +28,11 @@ test('composed layers supply root settings and globals to Oxlint', () => {
   expect(diagnostics.filter(({ code }) => code === 'eslint(no-undef)')).toEqual([
     expect.objectContaining({ message: expect.stringContaining('unknownWorkspaceGlobal') }),
   ])
+  const allocationRules = [
+    'react-perf(jsx-no-new-object-as-prop)',
+    'react-perf(jsx-no-new-array-as-prop)',
+    'react-perf(jsx-no-new-function-as-prop)',
+    'react-perf(jsx-no-jsx-as-prop)',
+  ]
+  expect(diagnostics.filter(({ code }) => allocationRules.includes(code))).toEqual([])
 })

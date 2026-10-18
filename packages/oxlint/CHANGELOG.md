@@ -1,5 +1,16 @@
 # @macklinu/oxlint-config
 
+## 2.2.0
+
+### Minor Changes
+
+- 0b4cce0: Require bracket notation for mutable and readonly array annotations, including complex element types. Use one syntax without changing array mutability.
+
+### Patch Changes
+
+- e51796c: Allow Effect subpath namespace imports and namespaced data-first or curried calls. Disable `unicorn/no-array-callback-reference` and `unicorn/no-array-method-this-argument` because neither rule can distinguish these APIs from native Array methods. This also removes their native Array callback-reference and `thisArg` checks.
+- f568bf1: Disable `oxc/no-map-spread`. Per-item copies do not establish a functional defect or a measured performance problem. Keep `oxc/no-accumulating-spread` enabled for growing accumulator copies.
+
 ## 2.1.1
 
 ### Patch Changes

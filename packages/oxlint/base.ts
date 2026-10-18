@@ -180,8 +180,9 @@ export const base = defineConfig({
     'typescript/no-useless-constructor': 'error',
     'typescript/prefer-optional-chain': 'error',
     'unicorn/catch-error-name': ['error', { name: 'error' }],
-    'unicorn/no-array-callback-reference': 'error',
-    'unicorn/no-array-method-this-argument': 'error',
+    // These syntax-only rules mistake Effect namespace calls for native Array methods.
+    'unicorn/no-array-callback-reference': 'off',
+    'unicorn/no-array-method-this-argument': 'off',
     'unicorn/no-new-buffer': 'error',
     'unicorn/no-unreadable-array-destructuring': 'error',
     'unicorn/error-message': 'error',

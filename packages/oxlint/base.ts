@@ -101,8 +101,7 @@ export const base = defineConfig({
     // Async function shape is often required by framework contracts and test doubles.
     'require-await': 'off',
     'sort-keys': 'off',
-    // Use `T[]` for simple arrays and `Array<T | U>` for complex element types.
-    'typescript/array-type': ['error', { default: 'array-simple' }],
+    'typescript/array-type': ['error', { default: 'array', readonly: 'array' }],
     'typescript/ban-ts-comment': [
       'error',
       {
@@ -208,11 +207,11 @@ export type ConfigLayer = Omit<OxlintConfig, 'extends' | 'options' | 'plugins' |
   options?: {
     typeAware?: true
   }
-  plugins?: Array<NonNullable<OxlintConfig['plugins']>[number] | 'effecttsgo'>
+  plugins?: (NonNullable<OxlintConfig['plugins']>[number] | 'effecttsgo')[]
   // Oxlint accepts `linkAttribute`, but its generated component type still exposes only `attribute`.
   settings?: Omit<NonNullable<OxlintConfig['settings']>, 'react'> & {
     react?: {
-      linkComponents?: Array<string | { name: string; linkAttribute: string | string[] }>
+      linkComponents?: (string | { name: string; linkAttribute: string | string[] })[]
       [key: string]: unknown
     }
   }

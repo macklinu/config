@@ -55,6 +55,14 @@ export default compose(typeAware)
 
 Your source and `tsconfig` must meet Oxlint's [TypeScript compatibility requirements](https://oxc.rs/docs/guide/usage/linter/type-aware.html#typescript-compatibility).
 
+This layer rejects unsafe `any` flows through assignments, returns, arguments, calls, and member access. For untrusted values such as `JSON.parse` results, assign to `unknown` and validate before use. A return annotation alone does not validate a parsed value.
+
+### Declaration merging
+
+Ordinary source files prefer type aliases. Put ambient declarations and module augmentations in `.d.ts`, `.d.mts`, or `.d.cts` files, where interfaces remain mergeable. Oxlint 1.86 cannot exempt ambient interfaces within a source file from `consistent-type-definitions`; if an augmentation must stay in that file, use a narrowly scoped disable for that rule rather than replacing its interface with an alias.
+
+Declaration files also permit `export {}`, which keeps global augmentations module-scoped without inventing a runtime export, and empty interfaces extending one base shape, which preserve an augmentation point. Bare empty interfaces and `{}` types remain errors. Other correctness checks and later consumer overrides still apply.
+
 ### Effect
 
 For Effect v4, add the optional lint integration:

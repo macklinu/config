@@ -201,6 +201,19 @@ export const base = defineConfig({
     // Top-level await changes module evaluation and deployment behavior; require a project decision.
     'unicorn/prefer-top-level-await': 'off',
   },
+  overrides: [
+    {
+      // Interfaces in declaration files must remain mergeable for ambient APIs and module augmentation.
+      files: ['**/*.d.ts', '**/*.d.mts', '**/*.d.cts'],
+      rules: {
+        'typescript/consistent-type-definitions': 'off',
+        // Named ambient interfaces can extend a binding shape while remaining open to augmentation.
+        'typescript/no-empty-object-type': ['error', { allowInterfaces: 'with-single-extends' }],
+        // `export {}` marks ambient declarations as a module without introducing runtime exports.
+        'unicorn/require-module-specifiers': 'off',
+      },
+    },
+  ],
 })
 
 export type ConfigLayer = Omit<OxlintConfig, 'extends' | 'options' | 'plugins' | 'settings'> & {

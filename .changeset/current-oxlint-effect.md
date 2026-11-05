@@ -1,5 +1,5 @@
 ---
-'@macklinu/oxlint-config': minor
+'@macklinu/oxlint-config': major
 ---
 
 Update the tested toolchain to Oxlint 1.91.0, oxlint-tsgolint 7.0.2005, @effect/tsgo 0.67.3, and Effect 4.1.2. Raise the lint integration peer minimums and limit peers to the supported major or minor lines.

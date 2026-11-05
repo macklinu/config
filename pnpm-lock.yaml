@@ -213,9 +213,6 @@ importers:
       '@macklinu/eslint-config':
         specifier: workspace:*
         version: link:packages/eslint
-      '@macklinu/oxlint-config':
-        specifier: workspace:*
-        version: link:packages/oxlint
       '@macklinu/prettier-config':
         specifier: workspace:*
         version: link:packages/prettier

@@ -36,7 +36,9 @@ Write the summary for package consumers. Explain behavior changes and include mi
 
 Run `pnpm exec changeset status --verbose` before pushing the pull request. Confirm that the release plan includes the intended packages and bump types.
 
-Commit the Changeset with the implementation. Do not manually change package versions or generated `CHANGELOG.md` files, or run `changeset version` or `changeset publish`, unless release work is explicitly requested. The release workflow consumes the entries to generate versions and changelogs.
+Commit the Changeset with the implementation. Never run `changeset version` or `changeset publish`, including through package scripts. Never manually change package versions or generated `CHANGELOG.md` files.
+
+The release workflow consumes the entries to generate versions and changelogs and publish packages.
 
 ## Collaboration and worktrees
 

@@ -77,8 +77,6 @@ Choose one Effect preset:
 - `effect.recommended` enables correctness rules as errors and requires schema class brands, deterministic service keys, and class-based services.
 - `effect.strict` includes `recommended` and adds upstream strict refactoring and style checks as errors.
 
-Both presets allow unstable APIs and leave the v3-only `missing-effect-service-dependency` rule unconfigured.
-
 ## Array policy
 
 Effect subpath namespace imports and data-first or curried calls are supported. The two Unicorn rules that misidentify these calls are disabled, so native Array callback references and `thisArg` arguments are not checked by those rules.

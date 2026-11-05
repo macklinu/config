@@ -31,7 +31,7 @@ Run `pnpm exec tsc --noEmit` separately in your project and CI.
 - `node`: Node globals and `node:` protocol imports.
 - `vitest`: Vitest rules without global test APIs.
 - `typeAware`: TypeScript type-aware rules. Requires `oxlint-tsgolint`.
-- `effect`: optional Effect v4 integration from `@effect/tsgo`.
+- `effect.recommended` and `effect.strict`: optional Effect v4 integration from `@effect/tsgo`.
 
 Use only the layers that match the project:
 
@@ -67,10 +67,17 @@ Add `"prepare": "effect-tsgo patch --no-typescript --oxlint --force"` to your pr
 
 ```ts
 import { compose } from '@macklinu/oxlint-config'
-import { effect } from '@macklinu/oxlint-config/effect'
+import * as effect from '@macklinu/oxlint-config/effect'
 
-export default compose(effect)
+export default compose(effect.recommended)
 ```
+
+Choose one Effect preset:
+
+- `effect.recommended` enables correctness rules as errors and requires schema class brands, deterministic service keys, and class-based services.
+- `effect.strict` includes `recommended` and adds upstream strict refactoring and style checks as errors.
+
+Both presets allow unstable APIs and leave the v3-only `missing-effect-service-dependency` rule unconfigured.
 
 ## Array policy
 

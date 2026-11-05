@@ -18,6 +18,10 @@ Add tests for observable supported behavior, boundaries, and failures that could
 
 Open a pull request after the requested scope is stable. Keep each pull request focused on one outcome.
 
+## Commits and pull requests
+
+Read and apply the local [conventional-commit skill](.agents/skills/conventional-commit/SKILL.md) when writing commit messages and pull request titles. Use Conventional Commits format for both.
+
 ## Collaboration and worktrees
 
 Read-only handoffs return findings only. They do not edit files, create branches, open pull requests, or add documentation unless that output is explicitly requested.

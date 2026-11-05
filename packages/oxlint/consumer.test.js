@@ -50,6 +50,14 @@ const lint = ({ layers, source, filename = 'fixture.ts' }) => {
     mkdirSync(dirname(destination), { recursive: true })
     symlinkSync(dirname(require.resolve(`${dependency}/package.json`)), destination, 'junction')
   }
+  if (dependencies.includes('oxlint-tsgolint')) {
+    const executable = process.platform === 'win32' ? 'tsgolint.cmd' : 'tsgolint'
+    mkdirSync(join(directory, 'node_modules', '.bin'))
+    symlinkSync(
+      join(packageDirectory, 'node_modules', '.bin', executable),
+      join(directory, 'node_modules', '.bin', executable)
+    )
+  }
 
   const regularLayers = layers.filter((layer) => layer !== 'effect')
   writeFileSync(
@@ -73,7 +81,13 @@ const lint = ({ layers, source, filename = 'fixture.ts' }) => {
   const result = spawnSync(
     process.execPath,
     [...command, filename, '--format', 'json', '--threads', '2'],
-    { cwd: directory, encoding: 'utf8', timeout: 30_000 }
+    {
+      cwd: directory,
+      encoding: 'utf8',
+      timeout: 30_000,
+      // A global executable must not satisfy a consumer's missing binary dependency.
+      env: { ...process.env, PATH: dirname(process.execPath) },
+    }
   )
 
   expect(result.error).toBeUndefined()

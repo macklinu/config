@@ -145,8 +145,11 @@ export const base = defineConfig({
     // Namespaces are legacy organization syntax; `.d.ts` ambient declarations still need them sometimes.
     'typescript/no-namespace': ['error', { allowDefinitionFiles: true }],
     'typescript/no-non-null-assertion': 'error',
+    'typescript/no-non-null-asserted-nullish-coalescing': 'error',
     'typescript/no-require-imports': 'error',
     'typescript/no-unsafe-function-type': 'error',
+    // The stock 7.0.2005 backend lacks this rule; the Effect-patched engine supports it.
+    'typescript/no-unsafe-enum-assignment': 'off',
     'typescript/no-restricted-types': [
       'error',
       {
@@ -185,6 +188,7 @@ export const base = defineConfig({
     'unicorn/no-array-method-this-argument': 'off',
     'unicorn/no-new-buffer': 'error',
     'unicorn/no-unreadable-array-destructuring': 'error',
+    'unicorn/no-useless-error-capture-stack-trace': 'error',
     'unicorn/error-message': 'error',
     // Naming and file layout conventions are project/framework-specific.
     'unicorn/filename-case': 'off',
@@ -227,9 +231,18 @@ export function compose(...layers: ConfigLayer[]): ConfigLayer {
 
   for (const config of configs) {
     // Oxlint reads these fields from the root only. Later layers win on the same key.
-    if (config.env) env = { ...env, ...config.env }
-    if (config.settings) settings = { ...settings, ...config.settings }
-    if (config.globals) globals = { ...globals, ...config.globals }
+    if (config.env) {
+      env ??= {}
+      Object.assign(env, config.env)
+    }
+    if (config.settings) {
+      settings ??= {}
+      Object.assign(settings, config.settings)
+    }
+    if (config.globals) {
+      globals ??= {}
+      Object.assign(globals, config.globals)
+    }
 
     if (config.options?.typeAware === true) {
       typeAware = true
@@ -240,9 +253,15 @@ export function compose(...layers: ConfigLayer[]): ConfigLayer {
     extends: configs,
   }
 
-  if (env) composed.env = env
-  if (settings) composed.settings = settings
-  if (globals) composed.globals = globals
+  if (env) {
+    composed.env = env
+  }
+  if (settings) {
+    composed.settings = settings
+  }
+  if (globals) {
+    composed.globals = globals
+  }
 
   if (typeAware) {
     composed.options = { typeAware: true }

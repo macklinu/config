@@ -26,7 +26,7 @@ jobs:
       - name: Build Oxlint package
         run: pnpm --filter @macklinu/oxlint-config build
       - name: Run tests
-        run: pnpm test --run
+        run: pnpm test
       - name: Typecheck workspace
         run: pnpm -r --if-present typecheck
   lint:

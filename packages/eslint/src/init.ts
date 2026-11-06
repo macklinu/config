@@ -1,9 +1,9 @@
+import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { styleText } from 'node:util'
 
 import { detectPackageManager, installPackage } from '@antfu/install-pkg'
 import { consola } from 'consola'
-import * as fs from 'fs'
 
 export const init = async ({ cwd = process.cwd() }: { cwd?: string } = {}) => {
   const resolvePath = (filePath: string): string => path.resolve(cwd, filePath)

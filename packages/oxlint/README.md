@@ -1,69 +1,42 @@
 # @macklinu/oxlint-config
 
-> My personal Oxlint configuration
+My Oxlint presets for TypeScript projects.
 
-## Installation
+## Setup
 
-TypeScript `>=7.0.0` is required.
+Requires Oxlint 1.91+, TypeScript 7, and Node 22.18+ (22.x) or 24+.
 
-```bash
-pnpm add -D @macklinu/oxlint-config oxlint typescript@^7.0.0
+```sh
+pnpm add -D @macklinu/oxlint-config oxlint@^1.91.0 typescript@^7.0.0
 ```
 
-## Usage
-
-TypeScript Oxlint config files require Node `24` or Node `>=22.18.0`.
-
-Create an `oxlint.config.ts` file in the root of your project:
+Create `oxlint.config.ts` and select the layers you need:
 
 ```ts
-import { compose } from '@macklinu/oxlint-config'
+import { compose, node, vitest } from '@macklinu/oxlint-config'
 
-export default compose()
+export default compose(node, vitest)
 ```
 
-Run `pnpm exec tsc --noEmit` separately in your project and CI.
+`compose()` always includes the base guardrails. Optional layers:
 
-## Layers
+- `node`: Node globals and `node:` imports.
+- `react`: browser globals, React, and accessibility rules.
+- `vitest`: Vitest rules with explicit imports, not globals.
+- `typeAware`: type-aware rules. Install `oxlint-tsgolint` and follow [Oxlint's TypeScript requirements](https://oxc.rs/docs/guide/usage/linter/type-aware.html#typescript-compatibility).
+- `effect.recommended` and `effect.strict`: Effect v4 rules, imported separately below.
 
-- `base`: default correctness, security, module, Promise, TypeScript, Unicorn, and OXC guardrails.
-- `react`: automatic JSX, browser, React, and JSX accessibility rules.
-- `node`: Node globals and `node:` protocol imports.
-- `vitest`: Vitest rules without global test APIs.
-- `typeAware`: TypeScript type-aware rules. Requires `oxlint-tsgolint`.
-- `effect.recommended` and `effect.strict`: optional Effect v4 integration from `@effect/tsgo`.
+Run `pnpm exec oxlint` and `pnpm exec tsc --noEmit` separately.
 
-Use only the layers that match the project:
+## Effect
 
-```ts
-import { compose, node, react, vitest } from '@macklinu/oxlint-config'
+Install this tested combination, or check [supported versions](https://github.com/Effect-TS/tsgo#supported-package-versions) before upgrading the tools together:
 
-export default compose(react, vitest, node)
+```sh
+pnpm add -D --save-exact @effect/tsgo@0.67.3 oxlint@1.91.0 oxlint-tsgolint@7.0.2005
 ```
 
-### Type-aware
-
-```bash
-pnpm add -D oxlint-tsgolint
-```
-
-```ts
-import { compose, typeAware } from '@macklinu/oxlint-config'
-
-export default compose(typeAware)
-```
-
-Your source and `tsconfig` must meet Oxlint's [TypeScript compatibility requirements](https://oxc.rs/docs/guide/usage/linter/type-aware.html#typescript-compatibility).
-
-### Effect
-
-For Effect v4, add the optional lint integration:
-
-```bash
-pnpm add -D @effect/tsgo oxlint oxlint-tsgolint
-```
-
-Add `"prepare": "effect-tsgo patch --no-typescript --oxlint --force"` to your project's scripts to patch Oxlint without changing your TypeScript compiler. Check [@effect/tsgo's supported versions](https://github.com/Effect-TS/tsgo#supported-package-versions) before patching.
+Tested with `effect@4.1.2` and `typescript@7.0.2`. Keep Effect as an application dependency.
 
 ```ts
 import { compose } from '@macklinu/oxlint-config'
@@ -77,6 +50,10 @@ Choose one Effect preset:
 - `effect.recommended` enables correctness rules as errors and requires schema class brands, deterministic service keys, and class-based services.
 - `effect.strict` includes `recommended` and adds upstream strict refactoring and style checks as errors.
 
-## Array policy
+Set your lint script to `effect-tsgo oxlint`. The Effect layer enables type-aware mode; the wrapper runs patched tools without modifying `node_modules`. Editors that require stock Oxlint can use the [patch setup](https://github.com/Effect-TS/tsgo/blob/main/docs/README.md) instead.
 
-Effect subpath namespace imports and data-first or curried calls are supported. The two Unicorn rules that misidentify these calls are disabled, so native Array callback references and `thisArg` arguments are not checked by those rules.
+## Policy notes
+
+- Unsafe enum assignment checks require the Effect-patched engine. The stock `oxlint-tsgolint@7.0.2005` engine crashes on that rule.
+- Base correctness and suspicious categories also enable matching Effect rules. Unstable APIs and short-form `Effect.try` and `Effect.tryPromise` constructors remain allowed.
+- Unicorn's `no-array-callback-reference` and `no-array-method-this-argument` rules are disabled to allow Effect namespace calls.

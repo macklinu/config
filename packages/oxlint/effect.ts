@@ -1,4 +1,4 @@
-import { correctness } from '@effect/tsgo/oxlint-presets'
+import { correctness, strict as upstreamStrict } from '@effect/tsgo/oxlint-presets'
 
 import type { ConfigLayer } from './base.js'
 
@@ -15,7 +15,7 @@ for (const plugin of correctness.plugins ?? []) {
   }
 }
 
-export const effect: ConfigLayer = {
+export const recommended: ConfigLayer = {
   options: {
     ...correctness.options,
     typeAware: true,
@@ -34,5 +34,19 @@ export const effect: ConfigLayer = {
     // v4 services use a class declaration, not a Context.Service variable.
     'effecttsgo/service-not-as-class': 'error',
     // `missing-effect-service-dependency` is v3-only and is intentionally not configured.
+  },
+}
+
+const strictRules: NonNullable<ConfigLayer['rules']> = {}
+
+for (const rule of Object.keys(upstreamStrict.rules ?? {})) {
+  strictRules[rule] = 'error'
+}
+
+export const strict: ConfigLayer = {
+  ...recommended,
+  rules: {
+    ...strictRules,
+    ...recommended.rules,
   },
 }

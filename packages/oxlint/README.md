@@ -24,7 +24,7 @@ export default compose(node, vitest)
 - `react`: browser globals, React, and accessibility rules.
 - `vitest`: Vitest rules with explicit imports, not globals.
 - `typeAware`: type-aware rules. Install `oxlint-tsgolint` and follow [Oxlint's TypeScript requirements](https://oxc.rs/docs/guide/usage/linter/type-aware.html#typescript-compatibility).
-- `effect`: Effect v4 rules, imported separately below.
+- `effect.recommended` and `effect.strict`: Effect v4 rules, imported separately below.
 
 Run `pnpm exec oxlint` and `pnpm exec tsc --noEmit` separately.
 
@@ -40,10 +40,15 @@ Tested with `effect@4.1.2` and `typescript@7.0.2`. Keep Effect as an application
 
 ```ts
 import { compose } from '@macklinu/oxlint-config'
-import { effect } from '@macklinu/oxlint-config/effect'
+import * as effect from '@macklinu/oxlint-config/effect'
 
-export default compose(effect)
+export default compose(effect.recommended)
 ```
+
+Choose one Effect preset:
+
+- `effect.recommended` enables correctness rules as errors and requires schema class brands, deterministic service keys, and class-based services.
+- `effect.strict` includes `recommended` and adds upstream strict refactoring and style checks as errors.
 
 Set your lint script to `effect-tsgo oxlint`. The Effect layer enables type-aware mode; the wrapper runs patched tools without modifying `node_modules`. Editors that require stock Oxlint can use the [patch setup](https://github.com/Effect-TS/tsgo/blob/main/docs/README.md) instead.
 

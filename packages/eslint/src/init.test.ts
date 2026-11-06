@@ -1,16 +1,18 @@
+import { tmpdir } from 'node:os'
 import path from 'node:path'
 
 import { detectPackageManager, installPackage } from '@antfu/install-pkg'
 import { consola } from 'consola'
 import { vol } from 'memfs'
-import { tmpdir } from 'os'
 import { beforeEach, expect, test, vi } from 'vitest'
 
 import { init } from './init'
 
+import type * as Memfs from 'memfs'
+
 // Mock fs everywhere else with the memfs version.
-vi.mock('fs', async () => {
-  const memfs = await vi.importActual<typeof import('memfs')>('memfs')
+vi.mock('node:fs', async () => {
+  const memfs = await vi.importActual<typeof Memfs>('memfs')
 
   // Support both `import fs from "fs"` and "import { readFileSync } from "fs"`
   return { default: memfs.fs, ...memfs.fs }

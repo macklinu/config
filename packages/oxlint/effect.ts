@@ -24,7 +24,11 @@ export const effect: ConfigLayer = {
   rules: {
     ...correctnessRules,
     'effecttsgo/unstable-api-usage': 'off',
+    // Short-form constructors are supported; requiring custom error mapping is project policy.
+    'effecttsgo/effect-try-without-catch': 'off',
     'effecttsgo/schema-class-missing-brand': 'error',
+    'effecttsgo/schema-class-object-literal': 'error',
+    'typescript/no-unsafe-enum-assignment': 'error',
     // Context.Service and Tag keys must stay deterministic across process boundaries.
     'effecttsgo/deterministic-keys': 'error',
     // v4 services use a class declaration, not a Context.Service variable.

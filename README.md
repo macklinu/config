@@ -11,10 +11,3 @@ See the individual packages for more information:
 ## Development
 
 Use Node 26, as specified in `.nvmrc`.
-
-Run `pnpm install` to install dependencies and Lefthook's Git hooks. The prepare script
-resets Git's `core.hooksPath` so existing Husky installations use Lefthook.
-
-Before each commit, Lefthook runs Oxlint fixes on staged JavaScript and TypeScript
-files, then formats supported staged files with Prettier. It stages the fixes and
-preserves unstaged changes in partially staged files.

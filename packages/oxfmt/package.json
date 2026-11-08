@@ -1,0 +1,44 @@
+{
+  "name": "@macklinu/oxfmt-config",
+  "version": "0.0.0",
+  "description": "My personal Oxfmt configuration",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/macklinu/config.git",
+    "directory": "packages/oxfmt"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "oxfmt"
+  ],
+  "author": "Mackie Underdown <macklinu@users.noreply.github.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "pnpm run build",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "oxfmt": "^0.77.0"
+  },
+  "devDependencies": {
+    "oxfmt": "0.77.0",
+    "typescript": "7.0.2"
+  }
+}

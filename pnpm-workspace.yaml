@@ -3,6 +3,8 @@ packages:
   - 'packages/*'
 allowBuilds:
   esbuild: true
+  # The root prepare script installs hooks instead of Lefthook's postinstall.
+  lefthook: false
   msgpackr-extract: false
 minimumReleaseAgeExclude:
   - '@effect/tsgo-darwin-arm64@0.67.3'

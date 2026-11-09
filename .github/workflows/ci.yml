@@ -23,8 +23,8 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      - name: Build Oxlint package
-        run: pnpm --filter @macklinu/oxlint-config build
+      - name: Build config packages
+        run: pnpm --filter @macklinu/oxlint-config --filter @macklinu/oxfmt-config build
       - name: Run tests
         run: pnpm test
       - name: Typecheck workspace

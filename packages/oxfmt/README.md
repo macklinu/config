@@ -22,14 +22,15 @@ Run `pnpm exec oxfmt --write .` to format your project, or `pnpm exec oxfmt --ch
 
 ## Style
 
-- Use single quotes.
+- Use single quotes, including JSX attributes.
 - Omit semicolons.
+- Use Oxfmt's default `trailingComma: 'all'`.
 - Sort imports into side effects, Node.js built-ins, packages, internal aliases, and relative imports.
 - Sort `package.json` fields using Oxfmt's default order.
 - Sort Tailwind CSS classes.
 - Ignore `repos/**`, relative to your `oxfmt.config.ts`.
 
-All other options use Oxfmt defaults, including JSX double quotes. Tailwind sorting uses Oxfmt's default Tailwind setup; see [Oxfmt's sorting documentation](https://oxc.rs/docs/guide/usage/formatter/sorting#sort-tailwind-css-classes) for project-specific Tailwind configuration.
+All other options use Oxfmt defaults. Tailwind sorting uses Oxfmt's default Tailwind setup; see [Oxfmt's sorting documentation](https://oxc.rs/docs/guide/usage/formatter/sorting#sort-tailwind-css-classes) for project-specific Tailwind configuration.
 
 ## Import sorting
 

@@ -1,6 +1,6 @@
 {
   "name": "@macklinu/oxlint-config",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "description": "My personal Oxlint configuration",
   "type": "module",
   "main": "./dist/index.js",

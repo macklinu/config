@@ -30,7 +30,7 @@
   "author": "Mackie Underdown <macklinu@users.noreply.github.com>",
   "license": "MIT",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.json",
     "prepack": "pnpm run build",
     "typecheck": "tsc --noEmit"
   },

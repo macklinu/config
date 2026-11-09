@@ -3,9 +3,10 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "rewriteRelativeImportExtensions": true,
-    "noEmit": true,
+    "declaration": true,
+    "outDir": "dist",
     "strict": true,
     "target": "ES2022"
   },
-  "include": ["*.ts"]
+  "include": ["index.ts"]
 }
